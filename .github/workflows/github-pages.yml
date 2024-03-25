@@ -11,11 +11,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'  # Sets up Node.js to run build scripts if necessary
 
       - name: Build project
         run: |
