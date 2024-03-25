@@ -14,7 +14,6 @@ jobs:
 
       - name: Build project
         run: |
-          npm install
           npm run build  # You can customize this part if your project requires a build step
 
       - name: Deploy to GitHub Pages
