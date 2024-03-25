@@ -1,8 +1,11 @@
-/* Basic CSS for demonstration. Adjust as needed. */
-body {
+body,
+html {
     margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
-canvas {
-    display: block;
+#scene-container {
+    width: 100vw;
+    height: 100vh;
 }

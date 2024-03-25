@@ -4,8 +4,8 @@
   "description": "A 3D ballistics simulation app within the browser using Three.js",
   "main": "main.js",
   "scripts": {
-    "start": "lite-server",
-    "build": "browserify src/app.js -o dist/bundle.js"
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,6 @@
     "three": "^0.126.1"
   },
   "devDependencies": {
-    "browserify": "^17.0.0",
-    "lite-server": "^2.6.1"
+    "parcel": "^2.12.0"
   }
 }
