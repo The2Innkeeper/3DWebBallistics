@@ -21,6 +21,6 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages  # Deploys to the gh-pages branch
           folder: build  # The folder that you want to deploy. This should match the output directory of your build script
