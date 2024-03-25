@@ -1,0 +1,8 @@
+/* Basic CSS for demonstration. Adjust as needed. */
+body {
+    margin: 0;
+}
+
+canvas {
+    display: block;
+}
