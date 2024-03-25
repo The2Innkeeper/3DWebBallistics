@@ -2,10 +2,9 @@
   "name": "3dwebballistics",
   "version": "0.0.0",
   "description": "A 3D ballistics simulation app within the browser using Three.js",
-  "main": "main.js",
   "scripts": {
     "start": "parcel index.html",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html --dist-dir build"
   },
   "repository": {
     "type": "git",

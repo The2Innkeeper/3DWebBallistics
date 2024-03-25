@@ -1,3 +1,5 @@
+.parcel-cache/
+
 # Node modules
 /node_modules/
 
@@ -64,6 +66,7 @@ dist
 
 # Gatsby files
 .cache/
+
 # Comment in the public line in if your project uses Gatsby and *not* git-lfs
 #public
 
