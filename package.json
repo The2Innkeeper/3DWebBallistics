@@ -1,4 +1,5 @@
 {
+  "homepage":"https://the2innkeeper.github.io/3DWebBallistics/",
   "name": "3dwebballistics",
   "version": "0.0.0",
   "description": "A 3D ballistics simulation app within the browser using Three.js",
