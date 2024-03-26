@@ -1,0 +1,1 @@
+{"mappings":"AAAA;;;;;;AAOA","sources":["src/css/style.css"],"sourcesContent":["body,\nhtml {\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n}\n\n#scene-container {\n    width: 100vw;\n    height: 100vh;\n}"],"names":[],"version":3,"file":"index.8e58d395.css.map"}
