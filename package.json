@@ -5,7 +5,7 @@
   "description": "A 3D ballistics simulation app within the browser using Three.js",
   "scripts": {
     "start": "parcel index.html",
-    "build": "parcel build index.html --dist-dir build --public-url ./"
+    "build": "parcel build index.html --dist-dir build --public-url ./ --no-optimize"
   },
   "repository": {
     "type": "git",
