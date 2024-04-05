@@ -1,3 +1,8 @@
+import * as dat from 'dat.gui';
+
+import {camera, renderer, scene, sphere} from "./sceneSetup.js";
+import {controls} from "./controls.js";
+
 // Simulation parameters
 let animationActive = false;
 const params = {
