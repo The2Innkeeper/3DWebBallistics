@@ -69,25 +69,30 @@ Features to include:
 
 10. Extensible architecture that allows for easy addition of new features or modifications to the physics and aimbot systems.
 
-src/
-  ├── index.ts
-  ├── simulation/
-  │   ├── Simulator.ts
-  │   ├── Shooter.ts
-  │   ├── Target.ts
-  │   ├── Projectile.ts
-  │   ├── physics/
-  │   │   ├── PhysicsEngine.ts
-  │   │   └── BallisticsModel.ts
-  │   └── aimbot/
-  │       ├── AimbotSystem.ts
-  │       └── TargetPredictor.ts
-  └── ui/
-      ├── index.html
-      ├── styles.css
-      ├── UIManager.ts
-      ├── SceneRenderer.ts
-      ├── ControlPanel.ts
-      └── components/
-          ├── Button.ts
-          └── ToggleSwitch.ts
+/ballistics-simulator
+|-- /src
+|   |-- /interfaces
+|   |   |-- IProjectile.ts         # Interface for projectile behavior
+|   |   |-- ITarget.ts             # Interface for target behavior
+|   |   |-- ISimulationControl.ts  # Interface for simulation controls
+|   |-- /models
+|   |   |-- Projectile.ts          # Implementation of the projectile interface
+|   |   |-- Target.ts              # Implementation of the target interface
+|   |-- /services
+|   |   |-- SimulationService.ts   # Manages the physics simulation
+|   |   |-- AimbotService.ts       # Provides calculations for the aimbot functionality
+|   |-- /components
+|   |   |-- Controls.ts            # UI controls component
+|   |   |-- Display.ts             # Handles display and rendering aspects
+|   |-- /utils
+|   |   |-- MathUtils.ts           # Utility class for mathematical calculations
+|   |-- /config
+|   |   |-- constants.ts           # Configuration constants (e.g., default simulation parameters)
+|   |-- app.ts                     # Main application logic that ties everything together
+|-- /assets
+|-- /styles
+|-- /dist
+|-- /node_modules
+|-- index.html
+|-- tsconfig.json
+|-- package.json
