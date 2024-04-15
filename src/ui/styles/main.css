@@ -1,0 +1,94 @@
+/* General body styling to provide a good baseline look across the application */
+body {
+    font-family: 'Arial', sans-serif;
+    /* Use a web-safe font for maximum compatibility */
+    background-color: #f4f4f4;
+    /* A light grey background for the page */
+    color: #333;
+    /* Dark grey text color for readability */
+    margin: 0;
+    /* Remove default margin */
+    padding: 20px;
+    /* Padding to keep content from the edge of the viewport */
+    line-height: 1.6;
+    /* Good line spacing makes text more readable */
+}
+
+#scene-container {
+    display: block;
+    /* Removes bottom margin/padding */
+    background: #000;
+    /* Ensures no white border around canvas */
+}
+
+/* Styling for headers used in the application */
+h1 {
+    color: #01ab04;
+    /* A nice green for headings to make them stand out */
+}
+
+/* Basic styles for vector control panels */
+.vector-controls {
+    background-color: #fff;
+    /* White background for sections of controls */
+    border: 1px solid #ccc;
+    /* A subtle border around control panels */
+    padding: 15px;
+    /* Padding inside control panels */
+    margin-bottom: 20px;
+    /* Space between different panels */
+    border-radius: 8px;
+    /* Rounded corners for a modern look */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* A light shadow for a subtle 3D effect */
+}
+
+/* Styling for buttons to make them visually appealing */
+button {
+    background-color: #007bff;
+    /* Blue background for buttons */
+    border: none;
+    /* No border for a cleaner look */
+    color: white;
+    /* White text on the buttons for contrast */
+    padding: 8px 16px;
+    /* Vertical and horizontal padding */
+    text-align: center;
+    /* Center text inside the button */
+    text-decoration: none;
+    /* No underline */
+    display: inline-block;
+    /* Allows setting dimensions */
+    font-size: 16px;
+    /* Medium-sized text inside buttons */
+    margin: 4px 2px;
+    /* Some margin around buttons to prevent them from touching */
+    cursor: pointer;
+    /* Pointer cursor on hover to indicate clickability */
+    border-radius: 5px;
+    /* Rounded corners on buttons */
+}
+
+button:hover {
+    background-color: #0056b3;
+    /* Darker blue on hover for a nice effect */
+}
+
+/* Styling for input fields to maintain consistency */
+input[type='number'],
+select {
+    width: 100%;
+    /* Full width to fill the container */
+    padding: 8px;
+    /* Padding for better text visibility and easier interaction */
+    margin: 5px 0 20px 0;
+    /* Margin to space out elements vertically */
+    display: inline-block;
+    /* Allows setting dimensions */
+    border: 1px solid #ccc;
+    /* Subtle border around inputs */
+    border-radius: 4px;
+    /* Rounded corners for inputs */
+    box-sizing: border-box;
+    /* Border-box model to include padding and border in width */
+}

@@ -69,30 +69,62 @@ Features to include:
 
 10. Extensible architecture that allows for easy addition of new features or modifications to the physics and aimbot systems.
 
+## Logic
 /ballistics-simulator
 |-- /src
 |   |-- /interfaces
-|   |   |-- IProjectile.ts         # Interface for projectile behavior
-|   |   |-- ITarget.ts             # Interface for target behavior
-|   |   |-- ISimulationControl.ts  # Interface for simulation controls
+|   |   |-- IMovable.ts              # Interface for any movable object
+|   |-- /events
+|   |   |-- EventBus.ts              # Central event handling for communication
 |   |-- /models
-|   |   |-- Projectile.ts          # Implementation of the projectile interface
-|   |   |-- Target.ts              # Implementation of the target interface
+|   |   |-- Projectile.ts            # Handles projectile behavior, including event emission
+|   |   |-- Target.ts                # Target behavior with properties like position and radius
 |   |-- /services
-|   |   |-- SimulationService.ts   # Manages the physics simulation
-|   |   |-- AimbotService.ts       # Provides calculations for the aimbot functionality
-|   |-- /components
-|   |   |-- Controls.ts            # UI controls component
-|   |   |-- Display.ts             # Handles display and rendering aspects
+|   |   |-- SimulationService.ts     # Core logic for running and managing the simulation
+|   |   |-- ExplosionHandler.ts      # Handles explosion effects upon receiving collision events
 |   |-- /utils
-|   |   |-- MathUtils.ts           # Utility class for mathematical calculations
-|   |-- /config
-|   |   |-- constants.ts           # Configuration constants (e.g., default simulation parameters)
-|   |-- app.ts                     # Main application logic that ties everything together
+|   |   |-- VectorUtils.ts           # Utility functions for vector calculations, etc.
+|   |-- /physics
+|   |   |-- CollisionDetection.ts    # Logic to detect collisions between objects like projectiles and targets
+|   |-- app.ts                       # Main application logic that ties all components together
 |-- /assets
+|   |-- /textures                    # Textures for graphical representations
+|   |-- /models                      # 3D models used in the simulation
 |-- /styles
+|   |-- main.css                     # CSS styles for the application UI
+|-- /dist                            # Compiled files from TypeScript to JavaScript
+|-- /node_modules                    # Dependencies and libraries
+|-- index.html                       # Main HTML document for the web application
+|-- tsconfig.json                    # TypeScript configuration
+|-- package.json                     # Project metadata and dependencies management
+
+## UI
+/ballistics-simulator
+|-- /src
+|   |-- /ui
+|   |   |-- /components             # Reusable UI components
+|   |   |   |-- ControlPanel.ts     # Controls for simulation parameters
+|   |   |   |-- Dashboard.ts        # Displays real-time data and results
+|   |   |   |-- Button.ts           # Custom button component
+|   |   |   |-- Slider.ts           # Custom slider component for input
+|   |   |-- /styles                 # CSS files specific to components
+|   |   |   |-- control-panel.css   # Styles for the ControlPanel
+|   |   |   |-- dashboard.css       # Styles for the Dashboard
+|   |   |   |-- button.css          # Styles for the Button
+|   |   |   |-- slider.css          # Styles for the Slider
+|   |   |-- /layouts                # Layout definitions
+|   |   |   |-- main-layout.css     # Main layout styles
+|   |   |-- /pages                  # Specific page UI implementations
+|   |   |   |-- home-page.ts        # Home page component
+|   |   |   |-- about-page.ts       # About page component
+|   |-- /utils
+|   |-- app.ts                      # Main application bootstrap
+|-- /public
+|-- /styles
+|   |-- main.css                    # Global styles
 |-- /dist
 |-- /node_modules
 |-- index.html
 |-- tsconfig.json
 |-- package.json
+
