@@ -1,0 +1,15 @@
+/* scene.css - Styles specific to the 3D scene display area */
+.simulation {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#scene-container {
+    display: block;
+    background: #000;
+    width: 100%;
+    height: 100%;
+}
