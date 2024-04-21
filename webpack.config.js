@@ -10,6 +10,14 @@ module.exports = {
         test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/,
+        
+      },
+      {
+        test: /\.css$/, // This regex will match any CSS files
+        use: [
+          'style-loader', // Injects styles into the DOM
+          'css-loader'    // Turns CSS into CommonJS modules
+        ]
       },
     ],
   },
@@ -23,8 +31,8 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
-        { from: './src/ui/styles/main.css', to: './src/ui/styles/main.css' },
-        { from: 'index.html', to: 'index.html' },
+        { from: './src/ui/styles/', to: './src/ui/styles/' },
+        { from: './src/index.html', to: 'index.html' },
       ],
     }),
   ],

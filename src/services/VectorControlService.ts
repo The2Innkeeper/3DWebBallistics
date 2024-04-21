@@ -2,10 +2,20 @@ import * as THREE from 'three';
 
 export class VectorControl {
     private vectors: THREE.Vector3[] = [];
+    private container: HTMLElement;
+    private readOnlyIndex: number | null; // Index of the vector that should be read-only, if any
+    private vectorType: 'shooter' | 'projectile' | 'target';
 
-    constructor(private containerId: string, private label: string, count: number = 5) {
-        this.initializeVectors(count);
+    constructor(containerId: string, vectorType: 'shooter' | 'projectile' | 'target', private label: string, randomCount: number = 0, readOnlyIndex: number | null = null) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            throw new Error(`Container with id "${containerId}" not found.`);
+        }
+        this.container = container;
+        this.readOnlyIndex = readOnlyIndex;
+        this.initializeVectors(randomCount);
         this.render();
+        this.vectorType = vectorType;
     }
 
     private initializeVectors(count: number): void {
@@ -15,31 +25,54 @@ export class VectorControl {
     }
 
     private render(): void {
-        const container = document.getElementById(this.containerId);
-        if (!container) return;
-
-        container.innerHTML = `<h3>${this.label} Position Derivatives</h3>`;
+        this.container.innerHTML = `<h3>${this.label} Position Derivatives</h3>`;
+        const vectorsList = document.createElement('div');
 
         this.vectors.forEach((vector, index) => {
             const vectorElement = document.createElement('div');
+            vectorElement.className = 'vector-controls';
+            // Use readOnly for projectile to make the entire row read-only
+            const readOnly = this.vectorType === 'projectile' && index === this.readOnlyIndex;
+            
             vectorElement.innerHTML = `
                 <label>Vector ${index + 1}: </label>
-                <input type="number" value="${vector.x}" step="0.01" onchange="vectorControl.updateVector(${index}, 'x', parseFloat(this.value))">
-                <input type="number" value="${vector.y}" step="0.01" onchange="vectorControl.updateVector(${index}, 'y', parseFloat(this.value))">
-                <input type="number" value="${vector.z}" step="0.01" onchange="vectorControl.updateVector(${index}, 'z', parseFloat(this.value))">
-                <button onclick="vectorControl.removeVector(${index})">Remove</button>
+                <input type="number" value="${vector.x.toFixed(2)}" step="0.01" data-index="${index}" data-component="x" ${readOnly ? 'readonly' : ''}>
+                <input type="number" value="${vector.y.toFixed(2)}" step="0.01" data-index="${index}" data-component="y" ${readOnly ? 'readonly' : ''}>
+                <input type="number" value="${vector.z.toFixed(2)}" step="0.01" data-index="${index}" data-component="z" ${readOnly ? 'readonly' : ''}>
+                ${readOnly ? '' : `<button data-index="${index}">Remove</button>`}
             `;
-            container.appendChild(vectorElement);
+            vectorsList.appendChild(vectorElement);
+        });
+        this.container.appendChild(vectorsList);
+        
+        // Event listeners for input changes
+        vectorsList.querySelectorAll('input[type=number]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const target = e.target as HTMLInputElement;
+                const index = parseInt(target.dataset.index!, 10);
+                const component = target.dataset.component as 'x' | 'y' | 'z';
+                const value = parseFloat(target.value);
+                this.updateVector(index, component, value);
+            });
         });
 
+        // Event listeners for remove button
+        vectorsList.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = parseInt(button.dataset.index!, 10);
+                this.removeVector(index);
+            });
+        });
+
+        // Add vector button
         const addButton = document.createElement('button');
         addButton.textContent = 'Add Vector';
         addButton.onclick = () => this.addVector();
-        container.appendChild(addButton);
+        this.container.appendChild(addButton);
     }
 
     addVector(): void {
-        this.vectors.push(new THREE.Vector3(0, 0, 0)); // Start with zero vector for simplicity
+        this.vectors.push(new THREE.Vector3());
         this.render();
     }
 
@@ -49,9 +82,33 @@ export class VectorControl {
     }
 
     updateVector(index: number, component: 'x' | 'y' | 'z', value: number): void {
-        if (this.vectors[index]) {
+        if (!Number.isNaN(value)) {
             this.vectors[index][component] = value;
+            // If there's a need to update the simulation backend, do it here
         }
         this.render();
     }
+
+        // Makes a specific vector row read-only based on the index
+    makeReadOnly(index: number): void {
+        const vectorElements = this.container.getElementsByClassName('vector-controls');
+        if (vectorElements[index]) {
+            const inputs = vectorElements[index].getElementsByTagName('input');
+            for (let input of inputs) {
+                input.readOnly = true;
+            }
+        }
+    }
+
+    // Hides the vector control's container
+    hide(): void {
+        this.container.style.display = 'none';
+    }
+
+    // Shows the vector control's container
+    show(): void {
+        this.container.style.display = 'block';
+    }
 }
+
+export default VectorControl;
