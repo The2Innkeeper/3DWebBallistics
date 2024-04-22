@@ -1,6 +1,7 @@
 const path = require('path');
 const glob = require('glob');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -38,6 +39,11 @@ module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
       filename: 'styles.css' // Combining all CSS into one file
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: './src/index.html', to: 'index.html' }, // This will copy index.html from src to dist
+      ],
     }),
   ],
 };
