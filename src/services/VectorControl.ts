@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 
-export class VectorControl {
+class VectorControl {
     private vectors: THREE.Vector3[] = [];
     private container: HTMLElement;
-    private readOnlyIndex: number | null; // Index of the vector that should be read-only, if any
+    public readOnlyIndex: number | null;
     private vectorType: 'shooter' | 'projectile' | 'target';
 
     constructor(containerId: string, vectorType: 'shooter' | 'projectile' | 'target', private label: string, randomCount: number = 0, readOnlyIndex: number | null = null) {
@@ -22,30 +22,33 @@ export class VectorControl {
         for (let i = 0; i < count; i++) {
             this.vectors.push(new THREE.Vector3(Math.random(), Math.random(), Math.random()));
         }
+        if (this.readOnlyIndex !== null) {
+            this.makeReadOnly(this.readOnlyIndex);
+        }
     }
 
-    private render(): void {
+    public render(): void {
         this.container.innerHTML = `<h3>${this.label} Position Derivatives</h3>`;
         const vectorsList = document.createElement('div');
 
         this.vectors.forEach((vector, index) => {
             const vectorElement = document.createElement('div');
             vectorElement.className = 'vector-controls';
-            // Use readOnly for projectile to make the entire row read-only
             const readOnly = this.vectorType === 'projectile' && index === this.readOnlyIndex;
+            const buttonDisabledAttribute = readOnly ? ' disabled' : '';
+            const buttonClass = readOnly ? 'button-disabled' : '';
             
             vectorElement.innerHTML = `
-                <label>Vector ${index + 1}: </label>
+                <label>Order ${index} position derivative: </label>
                 <input type="number" value="${vector.x.toFixed(2)}" step="0.01" data-index="${index}" data-component="x" ${readOnly ? 'readonly' : ''}>
                 <input type="number" value="${vector.y.toFixed(2)}" step="0.01" data-index="${index}" data-component="y" ${readOnly ? 'readonly' : ''}>
                 <input type="number" value="${vector.z.toFixed(2)}" step="0.01" data-index="${index}" data-component="z" ${readOnly ? 'readonly' : ''}>
-                ${readOnly ? '' : `<button data-index="${index}">Remove</button>`}
+                <button class="${buttonClass}" data-index="${index}"${buttonDisabledAttribute}>Remove</button>
             `;
             vectorsList.appendChild(vectorElement);
         });
         this.container.appendChild(vectorsList);
         
-        // Event listeners for input changes
         vectorsList.querySelectorAll('input[type=number]').forEach(input => {
             input.addEventListener('change', (e) => {
                 const target = e.target as HTMLInputElement;
@@ -56,7 +59,6 @@ export class VectorControl {
             });
         });
 
-        // Event listeners for remove button
         vectorsList.querySelectorAll('button').forEach(button => {
             button.addEventListener('click', (e) => {
                 const index = parseInt(button.dataset.index!, 10);
@@ -64,7 +66,6 @@ export class VectorControl {
             });
         });
 
-        // Add vector button
         const addButton = document.createElement('button');
         addButton.textContent = 'Add Vector';
         addButton.onclick = () => this.addVector();
@@ -84,12 +85,10 @@ export class VectorControl {
     updateVector(index: number, component: 'x' | 'y' | 'z', value: number): void {
         if (!Number.isNaN(value)) {
             this.vectors[index][component] = value;
-            // If there's a need to update the simulation backend, do it here
         }
         this.render();
     }
 
-        // Makes a specific vector row read-only based on the index
     makeReadOnly(index: number): void {
         const vectorElements = this.container.getElementsByClassName('vector-controls');
         if (vectorElements[index]) {
@@ -97,15 +96,17 @@ export class VectorControl {
             for (let input of inputs) {
                 input.readOnly = true;
             }
+            const buttons = vectorElements[index].getElementsByTagName('button');
+            for (let button of buttons) {
+                button.disabled = true;
+            }
         }
     }
 
-    // Hides the vector control's container
     hide(): void {
         this.container.style.display = 'none';
     }
 
-    // Shows the vector control's container
     show(): void {
         this.container.style.display = 'block';
     }

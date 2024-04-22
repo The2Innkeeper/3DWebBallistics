@@ -1,39 +1,43 @@
 const path = require('path');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const glob = require('glob');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-  entry: './src/app.ts',
-  mode: 'development', // Or 'production'
+  entry: {
+    app: ['./src/app.ts'].concat(
+      glob.sync('./src/ui/styles/**/*.css').map(e => './' + e.replace(/\\/g, '/')) // Correct path formatting
+    ),
+  },
+  mode: 'development', // Change to 'production' as necessary
   module: {
     rules: [
       {
         test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/,
-        
       },
       {
-        test: /\.css$/, // This regex will match any CSS files
+        test: /\.css$/,
         use: [
-          'style-loader', // Injects styles into the DOM
-          'css-loader'    // Turns CSS into CommonJS modules
+          MiniCssExtractPlugin.loader, // Extracts CSS into separate files
+          'css-loader'                // Translates CSS into CommonJS
         ]
       },
     ],
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.js', '.css'],
+    alias: {
+      // Define aliases if necessary
+    }
   },
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'build'),
+    path: path.resolve(__dirname, 'dist'), // Use 'dist' as it's more conventional
   },
   plugins: [
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: './src/ui/styles/', to: './src/ui/styles/' },
-        { from: './src/index.html', to: 'index.html' },
-      ],
+    new MiniCssExtractPlugin({
+      filename: 'styles.css' // Combining all CSS into one file
     }),
   ],
 };
