@@ -1,5 +1,5 @@
 import { Shooter } from '../../src/models/Shooter';
-import { spawnRandomTarget } from '../../src/simulation/services/TargetSpawner';
+import { spawnRandomTarget } from '../simulation/TargetSpawner';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 

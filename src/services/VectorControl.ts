@@ -35,8 +35,9 @@ class VectorControl {
             const vectorElement = document.createElement('div');
             vectorElement.className = 'vector-controls';
             const readOnly = this.vectorType === 'projectile' && index === this.readOnlyIndex;
-            const buttonDisabledAttribute = readOnly ? ' disabled' : '';
-            const buttonClass = readOnly ? 'button-disabled' : '';
+            const removeDisabled = this.readOnlyIndex !== null && index < this.readOnlyIndex;
+            const buttonDisabledAttribute = readOnly || removeDisabled ? ' disabled' : '';
+            const buttonClass = readOnly || removeDisabled ? 'button-disabled' : '';
             
             vectorElement.innerHTML = `
                 <label>Order ${index} position derivative: </label>

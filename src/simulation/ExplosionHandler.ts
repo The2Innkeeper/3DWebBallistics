@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { eventBus } from '../../events/EventBus';
+import { eventBus } from '../events/EventBus';
 
 export class ExplosionHandler {
     constructor() {
