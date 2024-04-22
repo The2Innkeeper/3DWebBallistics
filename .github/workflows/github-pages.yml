@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # Assuming your main branch is called 'main'
+      - main # Assuming your main branch is called 'main'
 
 jobs:
   deploy:
@@ -22,5 +22,5 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages  # Deploys to the gh-pages branch
-          folder: build  # The folder that you want to deploy. This should match the output directory of your build script
+          branch: gh-pages # Deploys to the gh-pages branch
+          folder: dist

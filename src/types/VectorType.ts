@@ -1,0 +1,1 @@
+export type VectorType = 'shooter' | 'projectile' | 'target';

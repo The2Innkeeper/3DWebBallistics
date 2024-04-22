@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { IMovable } from '../interfaces/IMovable';
 import { Target } from './Target';
 import { eventBus } from '../events/EventBus';
-import { checkCollision } from '../physics/CollisionDetection';
+import { checkCollision } from '../simulation/CollisionDetection';
 
 export class Projectile implements IMovable {
     position: THREE.Vector3;
