@@ -37,11 +37,9 @@ graph TD
 ```mermaid
 sequenceDiagram
     GameLoop->>EventBus: Update Event
-    EventBus->>Physics: Update Event
-    Physics->>EventBus: Physics Data
-    EventBus->>Shooter: Physics Data
-    EventBus->>Target: Physics Data
-    EventBus->>Projectile: Physics Data
+    EventBus->>Shooter: Update Event
+    EventBus->>Target: Update Event
+    EventBus->>Projectile: Update Event
     Shooter->>EventBus: State Change Event
     Target->>EventBus: State Change Event
     Projectile->>EventBus: State Change Event
@@ -57,8 +55,6 @@ sequenceDiagram
 ```
 src/
   ├── core/
-  │   ├── physics/
-  │   │   └── Physics.ts
   │   ├── explosions/
   │   │   └── ExplosionHandler.ts
   │   └── GameLoop.ts
