@@ -18,9 +18,16 @@ class VectorControl {
         this.vectorType = vectorType;
     }
 
+    private createRandomVector(min: number = -1, max: number = 1): THREE.Vector3 {
+        const randomX = Math.random() * (max - min) + min;
+        const randomY = Math.random() * (max - min) + min;
+        const randomZ = Math.random() * (max - min) + min;
+        return new THREE.Vector3(randomX, randomY, randomZ);
+    }
+
     private initializeVectors(count: number): void {
         for (let i = 0; i < count; i++) {
-            this.vectors.push(new THREE.Vector3(Math.random(), Math.random(), Math.random()));
+            this.vectors.push(this.createRandomVector(-5, 5));
         }
         if (this.readOnlyIndex !== null) {
             this.makeReadOnly(this.readOnlyIndex);
@@ -29,6 +36,19 @@ class VectorControl {
 
     public render(): void {
         this.container.innerHTML = `<h3>${this.label} Position Derivatives</h3>`;
+
+        // Clear all vectors button
+        const clearAllButton = document.createElement('button');
+        clearAllButton.textContent = 'Clear All Vectors';
+        clearAllButton.onclick = () => this.clearAllVectors();
+        this.container.appendChild(clearAllButton);
+
+        // Randomize all vectors button
+        const randomizeAllButton = document.createElement('button');
+        randomizeAllButton.textContent = 'Randomize All Vectors';
+        randomizeAllButton.onclick = () => this.randomizeAllVectors();
+        this.container.appendChild(randomizeAllButton);
+        
         const vectorsList = document.createElement('div');
 
         this.vectors.forEach((vector, index) => {
@@ -67,17 +87,27 @@ class VectorControl {
             });
         });
 
-        const addButton = document.createElement('button');
-        addButton.textContent = 'Add Vector';
-        addButton.onclick = () => this.addVector();
-        this.container.appendChild(addButton);
+        const addZeroButton = document.createElement('button');
+        addZeroButton.textContent = 'Add Zero Vector';
+        addZeroButton.onclick = () => this.addZeroVector();
+        this.container.appendChild(addZeroButton);
+
+        const addRandomButton = document.createElement('button');
+        addRandomButton.textContent = 'Add Random Vector';
+        addRandomButton.onclick = () => this.addRandomVector();
+        this.container.appendChild(addRandomButton);
     }
 
-    addVector(): void {
-        this.vectors.push(new THREE.Vector3());
+    addZeroVector(): void {
+        this.vectors.push(new THREE.Vector3(0, 0, 0));
         this.render();
     }
 
+    addRandomVector(): void {
+        this.vectors.push(this.createRandomVector(-1, 1));
+        this.render();
+    }
+    
     removeVector(index: number): void {
         this.vectors.splice(index, 1);
         this.render();
@@ -87,6 +117,16 @@ class VectorControl {
         if (!Number.isNaN(value)) {
             this.vectors[index][component] = value;
         }
+        this.render();
+    }
+    
+    clearAllVectors(): void {
+        this.vectors = this.vectors.map(() => new THREE.Vector3(0, 0, 0));
+        this.render();
+    }
+
+    randomizeAllVectors(): void {
+        this.vectors = this.vectors.map(() => this.createRandomVector(-1, 1));
         this.render();
     }
 
