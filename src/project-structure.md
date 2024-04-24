@@ -55,7 +55,8 @@ sequenceDiagram
 ```
 src/
   ├── core/
-  │   ├── explosions/
+  │   ├── physics/
+  │   │   ├── CollisionDetection.ts
   │   │   └── ExplosionHandler.ts
   │   └── GameLoop.ts
   │
