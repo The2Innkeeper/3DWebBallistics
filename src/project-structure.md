@@ -33,3 +33,65 @@ graph TD
     EventBus <--> SceneRenderer
     EventBus <--> UIComponents
 ```
+
+```mermaid
+sequenceDiagram
+    GameLoop->>EventBus: Update Event
+    EventBus->>Physics: Update Event
+    Physics->>EventBus: Physics Data
+    EventBus->>Shooter: Physics Data
+    EventBus->>Target: Physics Data
+    EventBus->>Projectile: Physics Data
+    Shooter->>EventBus: State Change Event
+    Target->>EventBus: State Change Event
+    Projectile->>EventBus: State Change Event
+    EventBus->>ExplosionHandler: State Change Event
+    ExplosionHandler->>EventBus: Explosion Event
+    GameLoop->>EventBus: Render Event
+    EventBus->>SceneRenderer: Render Event
+    SceneRenderer->>EventBus: Retrieve Entity States
+    EventBus->>UIComponents: UI Update Event
+    UIComponents->>EventBus: User Input Event
+```
+
+```
+src/
+  ├── core/
+  │   ├── physics/
+  │   │   └── Physics.ts
+  │   ├── explosions/
+  │   │   └── ExplosionHandler.ts
+  │   └── GameLoop.ts
+  │
+  ├── entities/
+  │   ├── Shooter.ts
+  │   ├── Target.ts
+  │   └── Projectile.ts
+  │
+  ├── rendering/
+  │   └── SceneRenderer.ts
+  │
+  ├── ui/
+  │   └── components/
+  │       └── UIComponents.ts
+  │
+  ├── communication/
+  │   └── EventBus.ts
+  │
+  ├── types/
+  │   └── index.ts
+  │
+  ├── utils/
+  │   └── /* utility functions */
+  │
+  ├── assets/
+  │   ├── images/
+  │   ├── models/
+  │   └── /* other asset files */
+  │
+  ├── styles/
+  │   └── /* CSS or SCSS files */
+  │
+  ├── index.html
+  └── app.ts
+```

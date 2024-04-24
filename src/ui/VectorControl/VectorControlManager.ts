@@ -1,7 +1,7 @@
 import VectorControl from './VectorControl';
 import { VectorType } from '../../types/VectorType';
 import * as THREE from 'three';
-import { eventBus } from '../../events/EventBus';
+import { eventBus } from '../../communication/EventBus';
 
 class VectorControlManager {
     private vectorControls: Record<VectorType, VectorControl>;

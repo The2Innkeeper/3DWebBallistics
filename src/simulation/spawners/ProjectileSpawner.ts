@@ -1,6 +1,6 @@
 import { VectorType } from "src/types/VectorType";
 import * as THREE from "three";
-import { eventBus } from "../../events/EventBus";
+import { eventBus } from "../../communication/EventBus";
 
 class ProjectileSpawner {
     constructor() {

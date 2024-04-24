@@ -1,10 +1,9 @@
 // CollisionDetection.ts
 import * as THREE from 'three';
-import { Projectile } from '../entities/Projectile';
-import { Target } from '../entities/Target';
+import { IMovable } from '../entities/interfaces/IMovable';
 
-export function checkCollision(projectile: Projectile, target: Target, buffer: number = 0): boolean {
-    const squaredDistance = projectile.position.distanceToSquared(target.position);
-    const collisionDistance = projectile.radius + target.radius + buffer;
+export function checkCollision(obj1: IMovable, obj2: IMovable, buffer: number = 0): boolean {
+    const squaredDistance = obj1.position.distanceToSquared(obj2.position);
+    const collisionDistance = obj1.radius + obj2.radius + buffer;
     return squaredDistance <= (collisionDistance * collisionDistance);
 }

@@ -1,11 +1,15 @@
 import * as THREE from 'three';
-import { IMovable } from 'src/interfaces/IMovable';
+import { IMovable } from 'src/simulation/entities/interfaces/IMovable';
+import { eventBus } from 'src/communication/EventBus';
 
 export class Target implements IMovable {
     position: THREE.Vector3;
-    private scaledPositionDerivatives: THREE.Vector3[];
-    private lifeTime: number;
     radius: number;
+    lifeTime: number; // Time since the projectile was spawned
+    maxLifeTime: number = 20; // Maximum lifetime of the projectile in seconds
+    maxDistance: number = 1000; // Maximum distance from the origin in meters
+    
+    private scaledPositionDerivatives: THREE.Vector3[]; // Pre-scaled derivatives for the Taylor series
     height: number;
     private mesh: THREE.Mesh;
 
@@ -53,6 +57,11 @@ export class Target implements IMovable {
         this.position = this.evaluatePositionAt(this.lifeTime);
         this.mesh.position.copy(this.position);
 
+        if (this.isExpired()) {
+            eventBus.emit('targetExpired', this);
+            return;
+        }
+
         // Orient the target to face the origin
         this.orientTowardsShooterAtOrigin();
     }
@@ -72,6 +81,10 @@ export class Target implements IMovable {
         }
 
         return position;
+    }
+    
+    isExpired(): boolean {
+        return this.lifeTime > this.maxLifeTime || this.position.lengthSq() > this.maxDistance ** 2;
     }
 
     // Method to add the target to a scene
