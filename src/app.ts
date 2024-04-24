@@ -1,12 +1,13 @@
-import SceneRenderer from './services/SceneRenderer';
-import VectorControlManager from './services/VectorControlManager';
+import { createSceneRenderer } from './rendering/SceneRenderer';
+import { vectorControlManager } from './ui/VectorControl/VectorControlManager';
 import MenuToggle from './ui/MenuToggle';
-import VectorTypeSelector from './ui/VectorTypeSelector';
+import { createVectorTypeSelector} from './ui/VectorTypeSelector';
 import WindowResizeHandler from './ui/WindowResizeHandler';
+import { projectileSpawner } from './simulation/spawners/ProjectileSpawner';
+
 
 function initializeApp(): void {
-    const sceneRenderer = new SceneRenderer();
-    const vectorControlManager = new VectorControlManager();
+    const sceneRenderer = createSceneRenderer();
 
     const menuToggle = document.getElementById('menu-toggle');
     const interfaceContainer = document.getElementById('interface-container');
@@ -16,21 +17,21 @@ function initializeApp(): void {
     }
 
     const vectorTypeSelector = document.getElementById('vectorTypeSelector') as HTMLSelectElement;
-    const vectorTypeSelectorInstance = new VectorTypeSelector(vectorTypeSelector, (selectedType) => {
+    const vectorTypeSelectorInstance = createVectorTypeSelector(vectorTypeSelector, (selectedType) => {
         vectorControlManager.handleVectorTypeChange(selectedType);
     });
 
     vectorControlManager.showInitialVectorControl(vectorTypeSelectorInstance.getInitialType());
 
-    const onSizeChange = () => {
-        const sceneContainer = document.getElementById('scene-container');
-        if (sceneContainer) {
-            sceneContainer.style.width = `${window.innerWidth}px`;
-            sceneContainer.style.height = `${window.innerHeight}px`;
-        }
-    };
+    new WindowResizeHandler(() => onSizeChange(window.innerWidth, window.innerHeight));
+}
 
-    new WindowResizeHandler(onSizeChange);
+function onSizeChange(width: number, height: number): void {
+    const sceneContainer = document.getElementById('scene-container');
+    if (sceneContainer) {
+        sceneContainer.style.width = `${width}px`;
+        sceneContainer.style.height = `${height}px`;
+    }
 }
 
 if (document.readyState === 'loading') {

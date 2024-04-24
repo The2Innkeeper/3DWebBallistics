@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Target } from "../models/Target";
+import { Target } from "../entities/Target";
 
 export function spawnRandomTarget(scene: THREE.Scene, randomRange: number = 2, minDistance: number = 1): Target {
     // Check if minDistance is less than the range
@@ -42,3 +42,5 @@ export function spawnRandomTarget(scene: THREE.Scene, randomRange: number = 2, m
 
     return target;
 }
+
+// export const targetSpawner = new TargetSpawner();

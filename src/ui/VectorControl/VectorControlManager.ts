@@ -1,5 +1,7 @@
 import VectorControl from './VectorControl';
-import { VectorType } from '../types/VectorType';
+import { VectorType } from '../../types/VectorType';
+import * as THREE from 'three';
+import { eventBus } from '../../events/EventBus';
 
 class VectorControlManager {
     private vectorControls: Record<VectorType, VectorControl>;
@@ -33,6 +35,20 @@ class VectorControlManager {
     public showInitialVectorControl(initialType: VectorType): void {
         this.vectorControls[initialType].show();
     }
+
+    public getAllVectorValues(): Record<VectorType, THREE.Vector3[]> {
+        return {
+            shooter: this.vectorControls.shooter.getVectorValues(),
+            projectile: this.vectorControls.projectile.getVectorValues(),
+            target: this.vectorControls.target.getVectorValues(),
+        };
+    }
+
+    public notifyVectorUpdate(): void {
+        const updatedVectorValues = this.getAllVectorValues();
+        // Emit an event using the EventBus
+        eventBus.emit('vectorsUpdated', updatedVectorValues);
+    }
 }
 
-export default VectorControlManager;
+export const vectorControlManager = new VectorControlManager();

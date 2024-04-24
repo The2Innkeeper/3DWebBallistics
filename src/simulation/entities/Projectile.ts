@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { IMovable } from '../interfaces/IMovable';
+import { IMovable } from '../../interfaces/IMovable';
 import { Target } from './Target';
-import { eventBus } from '../events/EventBus';
-import { checkCollision } from '../simulation/CollisionDetection';
+import { eventBus } from '../../events/EventBus';
+import { checkCollision } from '../physics/CollisionDetection';
 
 export class Projectile implements IMovable {
     position: THREE.Vector3;

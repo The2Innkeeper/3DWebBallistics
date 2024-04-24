@@ -1,5 +1,5 @@
-import { Shooter } from '../../src/models/Shooter';
-import { spawnRandomTarget } from '../simulation/TargetSpawner';
+import { Shooter } from '../simulation/entities/Shooter';
+import { spawnRandomTarget } from '../simulation/spawners/TargetSpawner';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -57,4 +57,6 @@ export class SceneRenderer {
     }
 }
 
-export default SceneRenderer;
+export function createSceneRenderer(): SceneRenderer {
+    return new SceneRenderer();
+}
