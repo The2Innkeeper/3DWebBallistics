@@ -56,7 +56,8 @@ class VectorControl {
             const vectorElement = document.createElement('div');
             vectorElement.className = 'vector-controls';
             const readOnly = this.vectorType === 'projectile' && index === this.readOnlyIndex;
-            const removeDisabled = this.readOnlyIndex !== null && index < this.readOnlyIndex;
+            const removeDisabled = this.readOnlyIndex !== null && index < this.readOnlyIndex
+                                || index === 0;
             const buttonDisabledAttribute = readOnly || removeDisabled ? ' disabled' : '';
             const buttonClass = readOnly || removeDisabled ? 'button-disabled' : '';
             

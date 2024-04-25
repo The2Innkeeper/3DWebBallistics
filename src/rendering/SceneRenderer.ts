@@ -26,7 +26,7 @@ export class SceneRenderer {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.initializeScene();
-        const shooter: Shooter = new Shooter([new THREE.Vector3(0, 0, 0)]);
+        const shooter: Shooter = new Shooter();
         shooter.addToScene(this.scene);
         spawnRandomTarget(this.scene);
         this.animate();

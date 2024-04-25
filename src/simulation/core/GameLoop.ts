@@ -1,10 +1,8 @@
 // GameLoop.ts
-import { EventBus } from '../../communication/EventBus';
+import { eventBus } from '../../communication/EventBus';
 
 class GameLoop {
   private lastTime: number = 0;
-
-  constructor(private eventBus: EventBus) {}
 
   start() {
     this.lastTime = performance.now();
@@ -14,12 +12,11 @@ class GameLoop {
   private update(currentTime: number) {
     const deltaTime = (currentTime - this.lastTime) / 1000; // Convert to seconds
     this.lastTime = currentTime;
-
-    this.eventBus.emit('update', deltaTime);
+    eventBus.emit('update', deltaTime);
 
     // Schedule the next update
     requestAnimationFrame(this.update.bind(this));
   }
 }
 
-export default GameLoop;
+export const gameLoop = new GameLoop();

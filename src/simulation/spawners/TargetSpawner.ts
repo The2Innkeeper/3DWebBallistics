@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { Target } from "../entities/Target";
+import { eventBus } from "../../communication/EventBus";
 
 export function spawnRandomTarget(scene: THREE.Scene, randomRange: number = 2, minDistance: number = 1): Target {
     // Check if minDistance is less than the range
@@ -37,8 +38,11 @@ export function spawnRandomTarget(scene: THREE.Scene, randomRange: number = 2, m
         initialPositionDerivatives.push(positionDerivative);
     }
 
-    const target = new Target(initialPositionDerivatives, []);
+    const target = new Target(initialPositionDerivatives);
     target.addToScene(scene);
+
+    // Emit an event with the target's initial position
+    eventBus.emit('targetSpawned', { position: initialPositionDerivatives[0] });
 
     return target;
 }

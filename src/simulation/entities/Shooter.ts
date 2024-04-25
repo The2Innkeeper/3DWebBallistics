@@ -1,38 +1,46 @@
+import { eventBus } from '../../communication/EventBus';
 import * as THREE from 'three';
 
 export class Shooter {
-    position: THREE.Vector3;
-    private scaledPositionDerivatives: THREE.Vector3[];
+    position: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
     radius: number;
     height: number;
     private mesh: THREE.Mesh;
-  constructor(scaledPositionDerivatives: THREE.Vector3[], radius: number = 0.625, height: number = 2, radialSegments: number = 32) {
-    this.position = scaledPositionDerivatives[0].clone();
-    this.scaledPositionDerivatives = scaledPositionDerivatives.map(derivative => derivative.clone());
-    this.radius = radius;
-    this.height = height;
+    constructor(radius: number = 0.625, height: number = 2, radialSegments: number = 32) {
+        this.radius = radius;
+        this.height = height;
+        this.mesh = this.createMesh(radius, height, radialSegments);
+    }
 
-    // Cylinder Geometry for Shooter
-    const geometry = new THREE.CylinderGeometry(radius, radius, height, radialSegments);
-    const material = new THREE.MeshPhongMaterial({ color: 0x555555 }); // Dark gray
-    this.mesh = new THREE.Mesh(geometry, material);
+    createMesh(radius: number = 0.625, height: number = 2, radialSegments: number = 32): THREE.Mesh {
+        // Cylinder Geometry for Shooter
+        const geometry = new THREE.CylinderGeometry(radius, radius, height, radialSegments);
+        const DARK_GRAY = 0x555555;
+        const material = new THREE.MeshPhongMaterial({ color: DARK_GRAY });
+        let mesh = new THREE.Mesh(geometry, material);
 
-    // Initialize base position at origin shifted down by radius
-    this.mesh.position.set(0, height / 2 - radius, 0);
-  }
+        // Initialize base position at origin shifted down by radius
+        mesh.position.set(0, height / 2 - radius, 0);
 
-  // Method to get the shooter's position derivatives
-  getPositionDerivatives(): THREE.Vector3[] {
-    return this.scaledPositionDerivatives;
-  }
+        return mesh;
+    }
 
-  // Method to add the target to a scene
-  addToScene(scene: THREE.Scene): void {
-      scene.add(this.mesh);
-  }
+    // Method to add the target to a scene
+    addToScene(scene: THREE.Scene): void {
+        scene.add(this.mesh);
+    }
 
-  // Method to remove the target from a scene
-  removeFromScene(scene: THREE.Scene): void {
-      scene.remove(this.mesh);
-  }
+    // Method to remove the target from a scene
+    removeFromScene(scene: THREE.Scene): void {
+        scene.remove(this.mesh);
+    }
+
+    faceTarget(data: { position: THREE.Vector3 }): void {
+        const direction = new THREE.Vector3().subVectors(data.position, this.position).normalize();
+        this.mesh.lookAt(direction);
+    }
+
+    registerUpdate() {
+        eventBus.on('targetSpawned', this.faceTarget.bind(this));
+    }
 }

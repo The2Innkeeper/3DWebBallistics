@@ -1,68 +1,37 @@
 import * as THREE from 'three';
-import { IMovable } from 'src/simulation/entities/interfaces/IMovable';
-import { eventBus } from 'src/communication/EventBus';
+import { BaseMovable } from './classes/BaseMovable';
+import { eventBus } from '../../communication/EventBus';
 
-export class Target implements IMovable {
-    position: THREE.Vector3;
-    radius: number;
-    lifeTime: number; // Time since the projectile was spawned
-    maxLifeTime: number = 20; // Maximum lifetime of the projectile in seconds
-    maxDistance: number = 1000; // Maximum distance from the origin in meters
-    
-    private scaledPositionDerivatives: THREE.Vector3[]; // Pre-scaled derivatives for the Taylor series
+export class Target extends BaseMovable {
     height: number;
-    private mesh: THREE.Mesh;
+    radialSegments: number;
 
-    constructor(targetPositionDerivatives: THREE.Vector3[],
-                shooterPositionDerivatives: THREE.Vector3[],
-                radius: number = 0.875,
-                height: number = 0.25,
-                radialSegments: number = 32
+    constructor(initialPositionDerivatives: THREE.Vector3[], 
+                radius: number = 0.875, 
+                height: number = 0.25, 
+                radialSegments: number = 32, 
+                maxLifeTime: number = 20, 
+                maxDistance: number = 1000, 
             ) {
-        this.position = targetPositionDerivatives[0].clone();
-        this.radius = radius;
+        let position = initialPositionDerivatives[0].clone();
+        super(position, radius, maxLifeTime, maxDistance);
         this.height = height;
-        this.lifeTime = 0;
-
-        // Determine the longer array to pad the shorter one
-        const maxLength = shooterPositionDerivatives.length >= 1 ||
-                        targetPositionDerivatives.length >= 1 ?
-                        Math.max(shooterPositionDerivatives.length, targetPositionDerivatives.length) : 
-                        1;
-        const paddedShooterPositionDerivatives = padWithZeros(shooterPositionDerivatives, maxLength);
-        const paddedTargetPositionDerivatives = padWithZeros(targetPositionDerivatives, maxLength);
-
-        // Compute the scaled position derivatives based on Taylor expansion
-        this.scaledPositionDerivatives = [];
-        let factorial = 1; // Start with 0! which is 1
-        for (let i = 0; i < maxLength; i++) {
-            if (i > 0) factorial *= i;
-            const scaledDerivative = paddedTargetPositionDerivatives[i].clone().sub(paddedShooterPositionDerivatives[i]);
-            this.scaledPositionDerivatives.push(scaledDerivative.divideScalar(factorial));
-        }
-
-        // Create the mesh for the cylinder
-        const geometry = new THREE.CylinderGeometry(radius, radius, height, radialSegments);
-        geometry.rotateX(Math.PI / 2); // Orient the cylinder's height along the x-axis
-        const material = new THREE.MeshPhongMaterial({ color: 0xFFFFFF }); // White color
-        this.mesh = new THREE.Mesh(geometry, material);
-        this.mesh.position.copy(this.position);
-
-        // Initial orientation to face the origin
+        this.radialSegments = radialSegments;
+        this.mesh = this.createMesh();
+        this.scaledPositionDerivatives = this.computeScaledPositionDerivatives(initialPositionDerivatives);
         this.orientTowardsShooterAtOrigin();
     }
-    
+
     updatePosition(deltaTime: number): void {
         this.lifeTime += deltaTime;
         this.position = this.evaluatePositionAt(this.lifeTime);
-        this.mesh.position.copy(this.position);
+        this.updateMesh();
 
         if (this.isExpired()) {
             eventBus.emit('targetExpired', this);
             return;
         }
 
-        // Orient the target to face the origin
         this.orientTowardsShooterAtOrigin();
     }
 
@@ -72,36 +41,31 @@ export class Target implements IMovable {
         this.mesh.lookAt(direction);
     }
 
-    private evaluatePositionAt(time: number): THREE.Vector3 {
-        let position = new THREE.Vector3(0, 0, 0); // Start with a zero vector for accumulation
+    protected createMesh(): THREE.Mesh {
+        const geometry = new THREE.CylinderGeometry(this.radius, this.radius, this.height, this.radialSegments);
+        geometry.rotateX(Math.PI / 2); // Orient the cylinder to stand upright
+        const material = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.copy(this.position);
+        return mesh;
+    }
 
-        // Evaluate the polynomial using Horner's method with pre-scaled coefficients
-        for (let i = this.scaledPositionDerivatives.length - 1; i >= 0; i--) {
-            position.multiplyScalar(time).add(this.scaledPositionDerivatives[i]);
+    protected computeScaledPositionDerivatives(initialPositionDerivatives: THREE.Vector3[]): THREE.Vector3[] {
+        const scaledPositionDerivatives: THREE.Vector3[] = [];
+        let factorial = 1;
+        for (let i = 0; i < initialPositionDerivatives.length; i++) {
+            const scaledDerivative = new THREE.Vector3(
+                initialPositionDerivatives[i].x / factorial,
+                initialPositionDerivatives[i].y / factorial,
+                initialPositionDerivatives[i].z / factorial
+            );
+            scaledPositionDerivatives.push(scaledDerivative);
+            factorial *= (i + 1);
         }
-
-        return position;
-    }
-    
-    isExpired(): boolean {
-        return this.lifeTime > this.maxLifeTime || this.position.lengthSq() > this.maxDistance ** 2;
+        return scaledPositionDerivatives;
     }
 
-    // Method to add the target to a scene
-    addToScene(scene: THREE.Scene): void {
-        scene.add(this.mesh);
+    registerUpdate() {
+        eventBus.on('update', this.updatePosition.bind(this));
     }
-
-    // Method to remove the target from a scene
-    removeFromScene(scene: THREE.Scene): void {
-        scene.remove(this.mesh);
-    }
-}
-
-// Helper function to pad an array of vectors with zeros
-function padWithZeros(array: THREE.Vector3[], length: number): THREE.Vector3[] {
-    while (array.length < length) {
-        array.push(new THREE.Vector3(0, 0, 0));
-    }
-    return array;
 }
