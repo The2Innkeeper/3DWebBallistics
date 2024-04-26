@@ -1,10 +1,9 @@
 import { Shooter } from '../simulation/entities/Shooter';
-import { spawnRandomTarget } from '../simulation/spawners/TargetSpawner';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 export class SceneRenderer {
-    private scene: THREE.Scene;
+    public scene: THREE.Scene;
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
     private controls: OrbitControls;
@@ -28,7 +27,6 @@ export class SceneRenderer {
         this.initializeScene();
         const shooter: Shooter = new Shooter();
         shooter.addToScene(this.scene);
-        spawnRandomTarget(this.scene);
         this.animate();
     }
 

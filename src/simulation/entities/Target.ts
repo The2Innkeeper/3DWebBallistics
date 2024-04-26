@@ -6,19 +6,20 @@ export class Target extends BaseMovable {
     height: number;
     radialSegments: number;
 
-    constructor(initialPositionDerivatives: THREE.Vector3[], 
+    constructor(targetInitialPositionDerivatives: THREE.Vector3[],
+                shooterInitialPositionDerivatives: THREE.Vector3[], 
                 radius: number = 0.875, 
                 height: number = 0.25, 
                 radialSegments: number = 32, 
                 maxLifeTime: number = 20, 
                 maxDistance: number = 1000, 
             ) {
-        let position = initialPositionDerivatives[0].clone();
+        let position = targetInitialPositionDerivatives[0].clone();
         super(position, radius, maxLifeTime, maxDistance);
         this.height = height;
         this.radialSegments = radialSegments;
         this.mesh = this.createMesh();
-        this.scaledPositionDerivatives = this.computeScaledPositionDerivatives(initialPositionDerivatives);
+        this.scaledPositionDerivatives = this.computeScaledPositionDerivatives(targetInitialPositionDerivatives, shooterInitialPositionDerivatives);
         this.orientTowardsShooterAtOrigin();
     }
 
@@ -50,22 +51,36 @@ export class Target extends BaseMovable {
         return mesh;
     }
 
-    protected computeScaledPositionDerivatives(initialPositionDerivatives: THREE.Vector3[]): THREE.Vector3[] {
+    protected computeScaledPositionDerivatives(targetPositionDerivatives: THREE.Vector3[], shooterPositionDerivatives: THREE.Vector3[]): THREE.Vector3[] {
+        const maxLength = Math.max(targetPositionDerivatives.length, shooterPositionDerivatives.length);
         const scaledPositionDerivatives: THREE.Vector3[] = [];
         let factorial = 1;
-        for (let i = 0; i < initialPositionDerivatives.length; i++) {
+
+        for (let i = 0; i < maxLength; i++) {
+            // Determine the components to use for calculations directly
+            const targetX = i < targetPositionDerivatives.length ? targetPositionDerivatives[i].x : 0;
+            const targetY = i < targetPositionDerivatives.length ? targetPositionDerivatives[i].y : 0;
+            const targetZ = i < targetPositionDerivatives.length ? targetPositionDerivatives[i].z : 0;
+            const shooterX = i < shooterPositionDerivatives.length ? shooterPositionDerivatives[i].x : 0;
+            const shooterY = i < shooterPositionDerivatives.length ? shooterPositionDerivatives[i].y : 0;
+            const shooterZ = i < shooterPositionDerivatives.length ? shooterPositionDerivatives[i].z : 0;
+
+            // Compute the scaled derivative without creating a new zero vector
             const scaledDerivative = new THREE.Vector3(
-                initialPositionDerivatives[i].x / factorial,
-                initialPositionDerivatives[i].y / factorial,
-                initialPositionDerivatives[i].z / factorial
+                (targetX - shooterX) / factorial,
+                (targetY - shooterY) / factorial,
+                (targetZ - shooterZ) / factorial
             );
+
             scaledPositionDerivatives.push(scaledDerivative);
             factorial *= (i + 1);
         }
+
         return scaledPositionDerivatives;
     }
 
     registerUpdate() {
-        eventBus.on('update', this.updatePosition.bind(this));
+        // Ensure that deltaTime is passed to updatePosition when the 'update' event is emitted
+        eventBus.on('update', (deltaTime: number) => this.updatePosition(deltaTime));
     }
 }

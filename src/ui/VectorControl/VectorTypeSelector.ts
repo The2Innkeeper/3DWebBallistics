@@ -1,4 +1,4 @@
-import { VectorType } from '../types/VectorType';
+import { VectorType } from './types/VectorType';
 
 class VectorTypeSelector {
     constructor(private vectorTypeSelector: HTMLSelectElement, private onVectorTypeChange: (selectedType: VectorType) => void) {

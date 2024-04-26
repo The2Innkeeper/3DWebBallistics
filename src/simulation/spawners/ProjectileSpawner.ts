@@ -1,21 +1,23 @@
-import { VectorType } from "src/types/VectorType";
+import { VectorType } from "src/ui/VectorControl/types/VectorType";
 import * as THREE from "three";
 import { eventBus } from "../../communication/EventBus";
+import { Projectile } from "../entities/Projectile";
 
 class ProjectileSpawner {
     constructor() {
-        // Subscribe to the 'vectorsUpdated' event
-        eventBus.on('vectorsUpdated', this.onVectorsUpdated.bind(this));
+        eventBus.on('spawnProjectile', this.spawnProjectile.bind(this));
     }
 
-    private onVectorsUpdated(vectorValues: Record<VectorType, THREE.Vector3[]>): void {
-        // Console log the updated projectile vectors
-        console.log('Updated Projectile Vectors:', vectorValues.projectile);
-        // Perform any necessary actions with the updated projectile vectors
-        // ...
+    public spawnProjectile(scene: THREE.Scene, projectileVectors: THREE.Vector3[]): void {
+        console.log("Spawning projectile with vectors:", projectileVectors);
     }
-
-    // ...
 }
 
-export const projectileSpawner = new ProjectileSpawner();
+let projectileSpawnerInstance: ProjectileSpawner;
+
+export function getProjectileSpawner(): ProjectileSpawner {
+    if (!projectileSpawnerInstance) {
+        projectileSpawnerInstance = new ProjectileSpawner();
+    }
+    return projectileSpawnerInstance;
+}

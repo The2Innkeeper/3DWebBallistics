@@ -8,17 +8,17 @@ import { eventBus } from '../../communication/EventBus';
 export class Projectile extends BaseMovable {
     target: BaseMovable;
 
-    constructor(targetInitialPositionDerivatives: THREE.Vector3[],
-                shooterInitialPositionDerivatives: THREE.Vector3[],
+    constructor(initialDisplacementDerivatives: THREE.Vector3[],
+                projectileInitialPositionDerivatives: THREE.Vector3[],
                 target: BaseMovable,
                 radius: number,
                 maxLifeTime?: number,
                 maxDistance?: number,
             ) {
-        let position = targetInitialPositionDerivatives[0].clone();
+        let position = new THREE.Vector3(0, 0, 0);
         super(position, radius, maxLifeTime, maxDistance);
         this.target = target;
-        this.scaledPositionDerivatives = this.computeScaledPositionDerivatives(targetInitialPositionDerivatives, shooterInitialPositionDerivatives);
+        this.scaledPositionDerivatives = this.computeScaledPositionDerivatives(initialDisplacementDerivatives, projectileInitialPositionDerivatives);
         this.mesh = this.createMesh();
     }
 
@@ -43,14 +43,14 @@ export class Projectile extends BaseMovable {
         return mesh;
     }
 
-    private computeScaledPositionDerivatives(targetPositionDerivatives: THREE.Vector3[], shooterPositionDerivatives: THREE.Vector3[]): THREE.Vector3[] {
+    private computeScaledPositionDerivatives(initialDisplacementDerivatives: THREE.Vector3[], projectilePositionDerivatives: THREE.Vector3[]): THREE.Vector3[] {
         const scaledPositionDerivatives: THREE.Vector3[] = [];
         let factorial = 1;
-        for (let i = 0; i < targetPositionDerivatives.length; i++) {
+        for (let i = 0; i < initialDisplacementDerivatives.length; i++) {
             const scaledDerivative = new THREE.Vector3(
-                targetPositionDerivatives[i].x - shooterPositionDerivatives[i].x / factorial,
-                targetPositionDerivatives[i].y - shooterPositionDerivatives[i].y / factorial,
-                targetPositionDerivatives[i].z - shooterPositionDerivatives[i].z / factorial,
+                initialDisplacementDerivatives[i].x - projectilePositionDerivatives[i].x / factorial,
+                initialDisplacementDerivatives[i].y - projectilePositionDerivatives[i].y / factorial,
+                initialDisplacementDerivatives[i].z - projectilePositionDerivatives[i].z / factorial,
             );
             scaledPositionDerivatives.push(scaledDerivative);
             factorial *= (i + 1);
@@ -59,6 +59,7 @@ export class Projectile extends BaseMovable {
     }
 
     registerUpdate() {
-        eventBus.on('update', this.updatePosition.bind(this));
+        // Ensure that deltaTime is passed to updatePosition when the 'update' event is emitted
+        eventBus.on('update', (deltaTime: number) => this.updatePosition(deltaTime));
     }
 }

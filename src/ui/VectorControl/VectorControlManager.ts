@@ -1,5 +1,5 @@
 import VectorControl from './VectorControl';
-import { VectorType } from '../../types/VectorType';
+import { VectorType } from './types/VectorType';
 import * as THREE from 'three';
 import { eventBus } from '../../communication/EventBus';
 
