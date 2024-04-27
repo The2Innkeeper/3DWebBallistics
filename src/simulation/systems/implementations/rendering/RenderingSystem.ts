@@ -1,13 +1,13 @@
-import { Shooter } from '../../src/models/Shooter';
-import { spawnRandomTarget } from '../simulation/TargetSpawner';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { IRenderable } from '../../../entities/interfaces/IRenderable';
 
-export class SceneRenderer {
+export class RenderingSystem {
     private scene: THREE.Scene;
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
-    private controls: OrbitControls;
+    private controls!: OrbitControls;
+    private entities: IRenderable[] = [];
 
     constructor() {
         this.scene = new THREE.Scene();
@@ -21,15 +21,11 @@ export class SceneRenderer {
             sceneContainer.appendChild(this.renderer.domElement);
         } else {
             console.error('Unable to find the scene container element!');
+            return; // Stop initialization if container is not found
         }
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-
         this.initializeScene();
-        const shooter: Shooter = new Shooter([new THREE.Vector3(0, 0, 0)]);
-        shooter.addToScene(this.scene);
-        spawnRandomTarget(this.scene);
-        this.animate();
     }
 
     private initializeScene(): void {
@@ -50,11 +46,17 @@ export class SceneRenderer {
         this.camera.zoom = cameraZoom;
     }
 
-    private animate(): void {
+    public animate(): void {
         requestAnimationFrame(() => this.animate());
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
     }
+
+    public getScene(): THREE.Scene {
+        return this.scene;
+    }
 }
 
-export default SceneRenderer;
+export function getRenderingSystem(): RenderingSystem {
+    return new RenderingSystem();
+}

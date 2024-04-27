@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import { eventBus } from '../events/EventBus';
+import { eventBus } from '../../../../communication/EventBus';
+import { CollisionEvent } from '../../../../communication/events/entities/CollisionEvent';
 
 export class ExplosionHandler {
     constructor() {
-        eventBus.on('collision', this.handleExplosion.bind(this));
+        eventBus.subscribe(CollisionEvent, this.handleExplosion.bind(this));
     }
 
     private handleExplosion(data: { position: THREE.Vector3 }): void {

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { vectorControlManager } from './VectorControlManager';
 
 class VectorControl {
     private vectors: THREE.Vector3[] = [];
@@ -55,7 +56,8 @@ class VectorControl {
             const vectorElement = document.createElement('div');
             vectorElement.className = 'vector-controls';
             const readOnly = this.vectorType === 'projectile' && index === this.readOnlyIndex;
-            const removeDisabled = this.readOnlyIndex !== null && index < this.readOnlyIndex;
+            const removeDisabled = this.readOnlyIndex !== null && index < this.readOnlyIndex
+                                || index === 0;
             const buttonDisabledAttribute = readOnly || removeDisabled ? ' disabled' : '';
             const buttonClass = readOnly || removeDisabled ? 'button-disabled' : '';
             
@@ -107,7 +109,7 @@ class VectorControl {
         this.vectors.push(this.createRandomVector(-1, 1));
         this.render();
     }
-    
+
     removeVector(index: number): void {
         this.vectors.splice(index, 1);
         this.render();
@@ -116,6 +118,8 @@ class VectorControl {
     updateVector(index: number, component: 'x' | 'y' | 'z', value: number): void {
         if (!Number.isNaN(value)) {
             this.vectors[index][component] = value;
+            // Notify the VectorControlManager about the vector update
+            vectorControlManager.notifyVectorUpdate();
         }
         this.render();
     }
@@ -150,6 +154,10 @@ class VectorControl {
 
     show(): void {
         this.container.style.display = 'block';
+    }
+
+    public getVectorValues(): THREE.Vector3[] {
+        return this.vectors;
     }
 }
 

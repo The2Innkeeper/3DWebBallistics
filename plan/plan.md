@@ -1,0 +1,2 @@
+add buttons for spawning target and spawning projectile (the function can be adjusted using a shift in input AKA Taylor shift of the target polynomial) top right for now
+then later overhaul UI for a categorized menu (dropdown menu design like https://assets.justinmind.com/wp-content/uploads/2020/05/dropdown-study-design-shiva.png)
