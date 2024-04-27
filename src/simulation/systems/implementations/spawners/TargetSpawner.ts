@@ -1,10 +1,14 @@
 import * as THREE from "three";
-import { Target } from "../entities/Target";
-import { eventBus } from "../../communication/EventBus";
+import { Target } from "../../../entities/implementations/Target";
+import { eventBus } from "../../../../communication/EventBus";
+import { SpawnRandomTargetEvent } from "../../../../communication/events/entities/spawning/SpawnRandomTargetEvent";
+import { TargetSpawnedEvent } from "../../../../communication/events/entities/spawning/TargetSpawnedEvent";
 
 // A functional approach to TargetSpawner
-export function createTargetSpawner() {
-    function spawnRandomTarget(scene: THREE.Scene, randomRange = 2, minDistance = 1) {
+export function createTargetSpawner(scene: THREE.Scene, randomRange = 2, minDistance = 1) {
+    function spawnRandomTarget(event: SpawnRandomTargetEvent) {
+        const { radius, height, radialSegments, expiryLifeTime, expiryDistance } = event;
+
         if (minDistance > randomRange) {
             console.warn("minDistance should be less than or equal to the randomRange.");
             minDistance = randomRange;
@@ -35,14 +39,16 @@ export function createTargetSpawner() {
             targetInitialPositionDerivatives.push(positionDerivative);
         }
 
-        const target = new Target(targetInitialPositionDerivatives, [new THREE.Vector3(0, 0, 0)]);
+        const target = new Target(targetInitialPositionDerivatives, radius, height, radialSegments, expiryLifeTime, expiryDistance);
         target.addToScene(scene);
-        eventBus.emit('targetSpawned', { position: targetInitialPositionDerivatives[0] });
+        eventBus.emit(TargetSpawnedEvent, new TargetSpawnedEvent(target));
 
         return target;
     }
 
+    eventBus.subscribe(SpawnRandomTargetEvent, (event: SpawnRandomTargetEvent) => spawnRandomTarget(event));
+
     return {
-        spawnRandomTarget
+        spawnRandomTarget: (event: SpawnRandomTargetEvent) => spawnRandomTarget(event)
     };
 }

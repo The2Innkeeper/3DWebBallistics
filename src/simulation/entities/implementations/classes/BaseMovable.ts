@@ -1,16 +1,18 @@
 import * as THREE from 'three';
-import { IMovable } from '../interfaces/IMovable';
-import { eventBus } from '../../../communication/EventBus';
+import { IMovable } from '../../interfaces/IMovable';
+import { eventBus } from '../../../../communication/EventBus';
+import { IRenderable } from '../../interfaces/IRenderable';
+import { FrameUpdateEvent } from '../../../../communication/events/FrameUpdateEvent';
 
-export abstract class BaseMovable implements IMovable {
+export abstract class BaseMovable implements IMovable, IRenderable {
     lifeTime: number = 0;
     position: THREE.Vector3;
     radius: number;
     maxLifeTime: number;
     maxDistance: number;
 
-    protected scaledPositionDerivatives!: THREE.Vector3[];
-    protected mesh!: THREE.Mesh;
+    protected scaledPositionDerivatives!: readonly THREE.Vector3[];
+    public mesh!: THREE.Mesh;
 
     constructor(position: THREE.Vector3, radius: number, maxLifeTime: number = 20, maxDistance: number = 1000) {
         this.position = position;
@@ -35,9 +37,11 @@ export abstract class BaseMovable implements IMovable {
         return position;
     }
 
-    public getScaledPositionDerivatives(): THREE.Vector3[] {
+    public getScaledPositionDerivatives(): readonly THREE.Vector3[] {
         return this.scaledPositionDerivatives;
     }
+
+    abstract createMesh(): void;
 
     updateMesh(): void {
         this.mesh.position.copy(this.position);
@@ -49,5 +53,10 @@ export abstract class BaseMovable implements IMovable {
 
     removeFromScene(scene: THREE.Scene): void {
         scene.remove(this.mesh);
+    }
+
+    registerUpdate() {
+        // Ensure that deltaTime is passed to updatePosition when the 'update' event is emitted
+        eventBus.subscribe(FrameUpdateEvent, this.updatePosition.bind(this));
     }
 }

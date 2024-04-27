@@ -2,6 +2,7 @@ import VectorControl from './VectorControl';
 import { VectorType } from './types/VectorType';
 import * as THREE from 'three';
 import { eventBus } from '../../communication/EventBus';
+import { VectorsUpdatedEvent } from '../../communication/events/ui/VectorsUpdateEvent';
 
 class VectorControlManager {
     private vectorControls: Record<VectorType, VectorControl>;
@@ -47,7 +48,7 @@ class VectorControlManager {
     public notifyVectorUpdate(): void {
         const updatedVectorValues = this.getAllVectorValues();
         // Emit an event using the EventBus
-        eventBus.emit('vectorsUpdated', updatedVectorValues);
+        eventBus.emit(VectorsUpdatedEvent, new VectorsUpdatedEvent(updatedVectorValues.projectile, updatedVectorValues.shooter, updatedVectorValues.target));
     }
 }
 

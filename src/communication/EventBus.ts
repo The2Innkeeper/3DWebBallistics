@@ -1,16 +1,26 @@
-export class EventBus {
-    private listeners: { [key: string]: Function[] } = {};
+import { EventEmitter } from './EventEmitter';
 
-    public on(event: string, listener: Function): void {
-        if (!this.listeners[event]) {
-            this.listeners[event] = [];
+export class EventBus {
+    private emitters: Map<Function, EventEmitter<any>> = new Map();
+
+    emit<T>(eventType: Function, event: T): void {
+        const emitter = this.emitters.get(eventType);
+        if (emitter) {
+        emitter.emit(event);
         }
-        this.listeners[event].push(listener);
     }
 
-    public emit(event: string, data?: any): void {
-        if (this.listeners[event]) {
-            this.listeners[event].forEach(listener => listener(data));
+    subscribe<T>(eventType: Function, callback: EventCallback<T>): void {
+        if (!this.emitters.has(eventType)) {
+        this.emitters.set(eventType, new EventEmitter<T>());
+        }
+        this.emitters.get(eventType)!.subscribe(callback);
+    }
+
+    unsubscribe<T>(eventType: Function, callback: EventCallback<T>): void {
+        const emitter = this.emitters.get(eventType);
+        if (emitter) {
+        emitter.unsubscribe(callback);
         }
     }
 }

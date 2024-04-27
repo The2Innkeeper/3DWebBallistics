@@ -1,24 +1,29 @@
-import { createSceneRenderer } from './rendering/SceneRenderer';
+import { getRenderingSystem } from './simulation/systems/implementations/rendering/RenderingSystem';
 import { vectorControlManager } from './ui/VectorControl/VectorControlManager';
 import MenuToggle from './ui/MenuToggle';
-import { createVectorTypeSelector} from './ui/VectorControl/VectorTypeSelector';
+import { createVectorTypeSelector } from './ui/VectorControl/VectorTypeSelector';
 import WindowResizeHandler from './ui/WindowResizeHandler';
-import { getProjectileSpawner } from './simulation/spawners/ProjectileSpawner';
-import { createTargetSpawner } from './simulation/spawners/TargetSpawner';
+import { createTargetSpawner } from './simulation/systems/implementations/spawners/TargetSpawner';
 import { VectorType } from './ui/VectorControl/types/VectorType';
 import * as THREE from 'three';
 import { eventBus } from './communication/EventBus';
+import { Shooter } from './simulation/entities/implementations/Shooter';
+import { SpawnRandomTargetEvent } from './communication/events/entities/spawning/SpawnRandomTargetEvent';
 
 let globalScene: THREE.Scene;  // Declare a global variable to hold the scene reference
 
 // Setup scene rendering and spawners
 function setupScene() {
-    const SceneRenderer = createSceneRenderer(); // Initializes and renders the scene renderer
-    globalScene = SceneRenderer.scene; // Store the scene in the global variable
-    const projectileSpawner = getProjectileSpawner(); // Uncomment and use as required
-    eventBus.on('spawnProjectile', (scene: THREE.Scene) => projectileSpawner.spawnProjectile(scene, [new THREE.Vector3(1, 0, 0)]));
-    const targetSpawner = createTargetSpawner(); // Uncomment and use as required
-    eventBus.on('spawnTarget', (scene: THREE.Scene) => targetSpawner.spawnRandomTarget(scene));
+    const renderingSystem = getRenderingSystem(); // Initializes and renders the scene renderer
+    globalScene = renderingSystem.getScene(); // Get the scene instance from the rendering system
+
+    const targetSpawner = createTargetSpawner(globalScene); // Pass the scene and minDistance to the target spawner
+
+    // Create a shooter instance and add it to the scene
+    const shooter = new Shooter();
+    shooter.addToScene(globalScene);
+
+    renderingSystem.animate();
 
     // Resize handling
     new WindowResizeHandler(resizeScene);
@@ -44,18 +49,18 @@ function setupUI() {
     // Adding event listeners for spawning targets and projectiles
     if (spawnTargetButton) {
         spawnTargetButton.addEventListener('click', () => {
-            eventBus.emit('spawnTarget', globalScene);
-            console.log('Target spawn event triggered with scene.');
+            eventBus.emit(SpawnRandomTargetEvent, new SpawnRandomTargetEvent());
+            console.log('Target spawn event triggered.');
         });
     }
 
-    if (fireProjectileButton) {
-        fireProjectileButton.addEventListener('click', () => {
-            eventBus.emit('spawnProjectile', globalScene);
-            // getProjectileSpawner().spawnProjectile(globalScene, [new THREE.Vector3(1, 0, 0)]);  // Now passing scene as an argument
-            console.log('Projectile spawn event triggered with scene.');
-        });
-    }
+    // if (fireProjectileButton) {
+    //     fireProjectileButton.addEventListener('click', () => {
+    //         const projectileVelocity = new THREE.Vector3(0, 0, 1); // Example velocity vector
+    //         eventBus.emit('spawnProjectile', projectileVelocity);
+    //         console.log(`Projectile spawn event triggered with velocity ${projectileVelocity}.`);
+    //     });
+    // }
 }
 
 // Handle vector type selection change
