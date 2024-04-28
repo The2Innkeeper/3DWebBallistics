@@ -11,20 +11,21 @@
     <div id="interface-container" class="interface">
         <div id="menu" class="menu">
             <select id="vectorTypeSelector">
+                <option value="target">Target</option>
                 <option value="shooter">Shooter</option>
                 <option value="projectile">Projectile</option>
-                <option value="target">Target</option>
             </select>
             <div id="vectorControlsContainer"></div>
+            <div id="targetVectors" class="vector-container"></div>
             <div id="shooterVectors" class="vector-container"></div>
             <div id="projectileVectors" class="vector-container"></div>
-            <div id="targetVectors" class="vector-container"></div>
         </div>
     </div>
     <div id="scene-container" class="simulation"></div>
     <!-- Temporary UI -->
     <div id="top-right-buttons" class="top-right-buttons">
         <button id="spawn-target" class="button">Spawn Target</button>
+        <button id="spawn-random-target" class="button">Spawn Random Target</button>
         <button id="fire-projectile" class="button">Fire Projectile</button>
     </div>
 

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { eventBus } from '../../../../communication/EventBus';
-import { CollisionEvent } from '../../../../communication/events/entities/CollisionEvent';
+import { eventBus } from '../../../communication/EventBus';
+import { CollisionEvent } from '../../../communication/events/entities/CollisionEvent';
 
 export class ExplosionHandler {
     constructor() {

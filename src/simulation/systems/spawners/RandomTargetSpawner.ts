@@ -1,12 +1,16 @@
 import * as THREE from "three";
-import { Target } from "../../../entities/implementations/Target";
-import { eventBus } from "../../../../communication/EventBus";
-import { SpawnRandomTargetEvent } from "../../../../communication/events/entities/spawning/SpawnRandomTargetEvent";
-import { TargetSpawnedEvent } from "../../../../communication/events/entities/spawning/TargetSpawnedEvent";
+import { Target } from "../../entities/implementations/Target";
+import { eventBus } from "../../../communication/EventBus";
+import { SpawnRandomTargetEvent } from "../../../communication/events/entities/spawning/SpawnRandomTargetEvent";
+import { TargetSpawnedEvent } from "../../../communication/events/entities/spawning/TargetSpawnedEvent";
+import { computeFactorial } from "../../utils/MovementUtils";
 
 // A functional approach to TargetSpawner
-export function createTargetSpawner(scene: THREE.Scene, randomRange = 2, minDistance = 1) {
+export function createRandomTargetSpawner(scene: THREE.Scene, randomRange = 1, minDistance = 1) {
     function spawnRandomTarget(event: SpawnRandomTargetEvent) {
+        // Logs to confirm event data
+        console.log("Spawning target with parameters:", event);
+
         const { radius, height, radialSegments, expiryLifeTime, expiryDistance } = event;
 
         if (minDistance > randomRange) {
@@ -36,6 +40,11 @@ export function createTargetSpawner(scene: THREE.Scene, randomRange = 2, minDist
                     Math.random() < 0.5 ? -minDistance : minDistance
                 );
             }
+
+            // Divide the vector components by i! (i factorial)
+            const factorial = computeFactorial(i);
+            positionDerivative.divideScalar(factorial);
+
             targetInitialPositionDerivatives.push(positionDerivative);
         }
 

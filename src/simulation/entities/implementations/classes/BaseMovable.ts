@@ -1,32 +1,39 @@
 import * as THREE from 'three';
-import { IMovable } from '../../interfaces/IMovable';
 import { eventBus } from '../../../../communication/EventBus';
-import { IRenderable } from '../../interfaces/IRenderable';
 import { FrameUpdateEvent } from '../../../../communication/events/FrameUpdateEvent';
+import { Entity } from './Entity';
+import { IMovable } from '../../interfaces/IMovable';
 
-export abstract class BaseMovable implements IMovable, IRenderable {
-    lifeTime: number = 0;
-    position: THREE.Vector3;
-    radius: number;
-    maxLifeTime: number;
-    maxDistance: number;
-
+export abstract class BaseMovable extends Entity implements IMovable {
+    public lifeTime: number = 0;
     protected scaledPositionDerivatives!: readonly THREE.Vector3[];
-    public mesh!: THREE.Mesh;
+    readonly expiryLifeTime: number;
+    readonly expiryDistance: number;
 
-    constructor(position: THREE.Vector3, radius: number, maxLifeTime: number = 20, maxDistance: number = 1000) {
-        this.position = position;
-        this.radius = radius;
-        this.maxLifeTime = maxLifeTime;
-        this.maxDistance = maxDistance;
-        // Initialize scaled position derivatives in inherited classes
-        // Initialize mesh in inherited classes
+    constructor(position: THREE.Vector3, radius: number, expiryLifetime: number = 20, expiryDistance: number = 1000) {
+        super(position, radius);
+        this.expiryLifeTime = expiryLifetime;
+        this.expiryDistance= expiryDistance;
+        this.registerUpdate();
+    }
+
+    isExpired(): boolean {
+        return this.lifeTime > this.expiryLifeTime || this.position.lengthSq() > this.expiryDistance ** 2;
     }
 
     abstract updatePosition(deltaTime: number): void;
+    
 
-    isExpired(): boolean {
-        return this.lifeTime > this.maxLifeTime || this.position.lengthSq() > this.maxDistance ** 2;
+    private onFrameUpdate(event: FrameUpdateEvent) {
+        const deltaTime = event.deltaTime;
+        this.updatePosition(deltaTime);
+        this.lifeTime += deltaTime;
+        this.updateMesh();
+    }
+
+    private registerUpdate() {
+        // Ensure that deltaTime is passed to updatePosition when the 'update' event is emitted
+        eventBus.subscribe(FrameUpdateEvent, this.onFrameUpdate.bind(this));
     }
 
     protected evaluatePositionAt(time: number): THREE.Vector3 {
@@ -39,24 +46,5 @@ export abstract class BaseMovable implements IMovable, IRenderable {
 
     public getScaledPositionDerivatives(): readonly THREE.Vector3[] {
         return this.scaledPositionDerivatives;
-    }
-
-    abstract createMesh(): void;
-
-    updateMesh(): void {
-        this.mesh.position.copy(this.position);
-    }
-
-    addToScene(scene: THREE.Scene): void {
-        scene.add(this.mesh);
-    }
-
-    removeFromScene(scene: THREE.Scene): void {
-        scene.remove(this.mesh);
-    }
-
-    registerUpdate() {
-        // Ensure that deltaTime is passed to updatePosition when the 'update' event is emitted
-        eventBus.subscribe(FrameUpdateEvent, this.updatePosition.bind(this));
     }
 }

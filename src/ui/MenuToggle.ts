@@ -1,4 +1,4 @@
-class MenuToggle {
+export class MenuToggle {
     constructor(private menuToggle: HTMLElement, private interfaceContainer: HTMLElement) {
         this.initialize();
     }
@@ -25,5 +25,3 @@ class MenuToggle {
         });
     }
 }
-
-export default MenuToggle;

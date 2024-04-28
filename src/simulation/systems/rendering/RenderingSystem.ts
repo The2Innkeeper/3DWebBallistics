@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { IRenderable } from '../../../entities/interfaces/IRenderable';
+import { IRenderable } from '../../entities/interfaces/IRenderable';
 
 export class RenderingSystem {
     private scene: THREE.Scene;
@@ -54,6 +54,17 @@ export class RenderingSystem {
 
     public getScene(): THREE.Scene {
         return this.scene;
+    }
+
+    public addEntity(entity: IRenderable): void {
+        this.entities.push(entity);
+    }
+
+    public removeEntity(entity: IRenderable): void {
+        const index = this.entities.indexOf(entity);
+        if (index !== -1) {
+            this.entities.splice(index, 1);
+        }
     }
 }
 
