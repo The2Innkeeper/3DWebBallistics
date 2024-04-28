@@ -1,21 +1,18 @@
 import { VectorControl } from './VectorControl';
 import { VectorType } from './types/VectorType';
 import * as THREE from 'three';
-import { updateScaledDisplacementDerivatives, updateScaledProjectileDerivatives } from '../../simulation/utils/MovementUtils';
+import { updateScaledDisplacementDerivatives } from '../../simulation/utils/MovementUtils';
 
 class VectorControlManager {
     private vectorControls: Record<VectorType, VectorControl>;
-    private vectorValues: Record<VectorType, THREE.Vector3[]> = {
-        shooter: [],
-        projectile: [],
-        target: [],
-    };
+
+    public projectileMinimizedIndex: number = 1;
 
     constructor() {
         this.vectorControls = {
-            shooter: new VectorControl('shooterVectors', 'shooter', 'Shooter Vectors', 3),
-            projectile: new VectorControl('projectileVectors', 'projectile', 'Projectile Vectors', 3, 1),
-            target: new VectorControl('targetVectors', 'target', 'Target Vectors', 3)
+            target: new VectorControl('targetVectors', 'target', 'Target Vectors', 3, 1),
+            shooter: new VectorControl('shooterVectors', 'shooter', 'Shooter Vectors', 3, 1),
+            projectile: new VectorControl('projectileVectors', 'projectile', 'Projectile Vectors', 3, 3, this.projectileMinimizedIndex),
         };
 
         this.hideAllVectorControls();
@@ -25,20 +22,12 @@ class VectorControlManager {
         Object.values(this.vectorControls).forEach(control => control.hide());
     }
 
-    public updateVectorValues(vectorType: VectorType, vectors: THREE.Vector3[]): void {
-        this.vectorValues[vectorType] = [...vectors]; // Create a new array to avoid reference issues
-        this.updateBackendValues();
-    }
-
-    private updateBackendValues(): void {
-        const { shooter, projectile, target } = this.vectorValues;
-        console.log('Updating backend values with:', this.vectorValues);
+    public updateBackendValues(): void {
+        const { target, shooter, projectile } = this.getAllVectorValues();
+        console.log('Updating backend values based on vector values:', target, shooter, projectile);
 
         // Update the scaled displacement derivatives
-        updateScaledDisplacementDerivatives(target, shooter);
-
-        // Update the scaled projectile derivatives
-        updateScaledProjectileDerivatives(projectile);
+        updateScaledDisplacementDerivatives(target, shooter, projectile);
     }
 
     public handleVectorTypeChange(selectedType: VectorType): void {

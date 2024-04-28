@@ -11,8 +11,9 @@ export class VectorControl {
     private vectorType: 'shooter' | 'projectile' | 'target';
     private renderer: VectorControlRenderer;
     private vectorControlEventHandler: VectorControlEventHandler;
+    private randomRange: number = 1;
 
-    constructor(containerId: string, vectorType: 'shooter' | 'projectile' | 'target', private label: string, randomCount: number = 0, readOnlyIndex: number | null = null) {
+    constructor(containerId: string, vectorType: 'shooter' | 'projectile' | 'target', private label: string, randomCount: number = 0, randomRange: number = 1, readOnlyIndex: number | null = null) {
         const container = document.getElementById(containerId);
         if (!container) {
             throw new Error(`Container with id "${containerId}" not found.`);
@@ -22,17 +23,19 @@ export class VectorControl {
         this.vectorType = vectorType;
         this.renderer = new VectorControlRenderer(this.container, this.label, this.vectors, this.vectorType, this.readOnlyIndex);
         this.vectorControlEventHandler = new VectorControlEventHandler(this);
-        this.initializeVectors(randomCount);
+        this.randomRange = randomRange;
+        this.initializeVectors(randomCount, randomRange);
         this.render();
+        setTimeout(() => this.notifyVectorUpdate(), 0);
     }
 
     public getContainer(): HTMLElement {
         return this.container;
     }
 
-    private initializeVectors(count: number): void {
+    private initializeVectors(count: number, randomRange: number): void {
         for (let i = 0; i < count; i++) {
-            this.vectors.push(createRandomVector(-5, 5));
+            this.vectors.push(createRandomVector(-randomRange, randomRange));
         }
         if (this.readOnlyIndex !== null) {
             this.makeReadOnly(this.readOnlyIndex);
@@ -57,7 +60,6 @@ export class VectorControl {
     }
 
     removeVector(index: number): void {
-        console.log(`Removing vector at index ${index}`);
         this.vectors.splice(index, 1);
         this.notifyVectorUpdate();
         this.render();
@@ -78,13 +80,13 @@ export class VectorControl {
     }
 
     randomizeAllVectors(): void {
-        this.vectors = this.vectors.map(() => createRandomVector(-1, 1));
+        this.vectors = this.vectors.map(() => createRandomVector(-this.randomRange, this.randomRange));
         this.notifyVectorUpdate();
         this.render();
     }
 
     private notifyVectorUpdate(): void {
-        vectorControlManager.updateVectorValues(this.vectorType, this.vectors);
+        vectorControlManager.updateBackendValues();
     }
 
     makeReadOnly(index: number): void {

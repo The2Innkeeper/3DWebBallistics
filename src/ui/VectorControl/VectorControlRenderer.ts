@@ -108,7 +108,7 @@ export class VectorControlRenderer {
     private addZeroVector(): void {
         this.vectors.push(new THREE.Vector3(0, 0, 0));
         this.render();
-        vectorControlManager.updateVectorValues(this.vectorType, this.vectors);
+        vectorControlManager.updateBackendValues();
     }
 
     private addRandomVector(): void {
@@ -116,6 +116,6 @@ export class VectorControlRenderer {
         this.setRandomVectors(newVector);
         this.vectors.push(newVector);
         this.render();
-        vectorControlManager.updateVectorValues(this.vectorType, this.vectors);
+        vectorControlManager.updateBackendValues();
     }
 }

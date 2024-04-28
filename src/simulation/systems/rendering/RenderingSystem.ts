@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { IRenderable } from '../../../entities/interfaces/IRenderable';
+import { IRenderable } from '../../entities/interfaces/IRenderable';
 
 export class RenderingSystem {
     private scene: THREE.Scene;

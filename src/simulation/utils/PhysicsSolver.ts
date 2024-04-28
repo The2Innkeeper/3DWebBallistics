@@ -1,0 +1,1 @@
+import { findStrictlyPositiveRoots } from '@the2innkeeper/polynomial-real-root-finding';

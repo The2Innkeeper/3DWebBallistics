@@ -2,7 +2,8 @@ import * as THREE from 'three';
 
 export class SpawnTargetEvent {
     constructor(
-        public readonly displacementDerivatives: readonly THREE.Vector3[],
+        public readonly targetDerivatives: THREE.Vector3[],
+        public readonly shooterDerivatives: THREE.Vector3[],
         public readonly radius: number = 0.875, 
         public readonly height: number = 0.25, 
         public readonly radialSegments: number = 32, 

@@ -1,12 +1,11 @@
-import { eventBus } from '../../../communication/EventBus';
-import { Entity } from '../../entities/implementations/classes/Entity';
-import { ProjectileExpiredEvent } from '../../../communication/events/entities/expiry/ProjectileExpiredEvent';
-import { TargetExpiredEvent } from '../../../communication/events/entities/expiry/TargetExpiredEvent';
-import { Projectile } from '../../entities/implementations/Projectile';
-import { BaseMovable } from '../../entities/implementations/classes/BaseMovable';
-import { TargetSpawnedEvent } from '../../../communication/events/entities/spawning/TargetSpawnedEvent';
-import { ProjectileSpawnedEvent } from '../../../communication/events/entities/spawning/ProjectileSpawnedEvent';
-import { CollisionEvent } from '../../../communication/events/entities/CollisionEvent';
+import { eventBus } from '../../communication/EventBus';
+import { ProjectileExpiredEvent } from '../../communication/events/entities/expiry/ProjectileExpiredEvent';
+import { TargetExpiredEvent } from '../../communication/events/entities/expiry/TargetExpiredEvent';
+import { Projectile } from '../entities/implementations/Projectile';
+import { BaseMovable } from '../entities/implementations/classes/BaseMovable';
+import { TargetSpawnedEvent } from '../../communication/events/entities/spawning/TargetSpawnedEvent';
+import { ProjectileSpawnedEvent } from '../../communication/events/entities/spawning/ProjectileSpawnedEvent';
+import { CollisionEvent } from '../../communication/events/entities/CollisionEvent';
 
 export class EntityManager {
     private targetSpawnOrder: BaseMovable[] = [];

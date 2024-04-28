@@ -1,6 +1,6 @@
 // GameLoop.ts
-import { eventBus } from '../../../communication/EventBus';
-import { frameUpdateEvent, FrameUpdateEvent } from '../../../communication/events/FrameUpdateEvent';
+import { eventBus } from '../../communication/EventBus';
+import { frameUpdateEvent, FrameUpdateEvent } from '../../communication/events/FrameUpdateEvent';
 
 export class GameLoop {
   private lastTime: number = 0;
@@ -18,6 +18,7 @@ export class GameLoop {
 
     // Emit the frame update event
     eventBus.emit(FrameUpdateEvent, frameUpdateEvent);
+    // console.log('Frame update event emitted with deltaTime:', frameUpdateEvent.deltaTime);
 
     // Schedule the next update
     requestAnimationFrame(this.update.bind(this));

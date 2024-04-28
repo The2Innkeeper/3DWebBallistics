@@ -8,19 +8,19 @@ export class Target extends BaseMovable {
     radialSegments: number;
 
     constructor(
-        initialDisplacementDerivatives: readonly THREE.Vector3[],
+        scaledPositionDerivatives: readonly THREE.Vector3[],
         radius: number = 0.875, 
         height: number = 0.25, 
         radialSegments: number = 32, 
         expiryLifeTime: number = 20, 
         expiryDistance: number = 1000, 
             ) {
-        let position = initialDisplacementDerivatives[0].clone();
+        let position = scaledPositionDerivatives[0].clone();
         super(position, radius, expiryLifeTime, expiryDistance);
+        this.scaledPositionDerivatives = scaledPositionDerivatives;
         this.height = height;
         this.radialSegments = radialSegments;
         this.mesh = this.createMesh();
-        this.scaledPositionDerivatives = Target.computeScaledPositionDerivatives(initialDisplacementDerivatives);
         this.orientTowardsShooterAtOrigin();
     }
 
@@ -50,20 +50,5 @@ export class Target extends BaseMovable {
         const mesh = new THREE.Mesh(geometry, material);
         mesh.position.copy(this.position);
         return mesh;
-    }
-
-    private static computeScaledPositionDerivatives(initialDisplacementDerivatives: readonly THREE.Vector3[]): readonly THREE.Vector3[] {
-        const scaledPositionDerivatives: THREE.Vector3[] = [];
-        let factorial = 1;
-
-        for (let i = 0; i < initialDisplacementDerivatives.length; i++) {
-            // Compute the scaled derivative
-            const scaledDerivative = initialDisplacementDerivatives[i].clone().divideScalar(factorial);
-
-            scaledPositionDerivatives.push(scaledDerivative);
-            factorial *= (i + 1);
-        }
-
-        return scaledPositionDerivatives;
     }
 }

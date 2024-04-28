@@ -1,4 +1,4 @@
-class WindowResizeHandler {
+export class WindowResizeHandler {
     private width: number = window.innerWidth;
     private height: number = window.innerHeight;
 
@@ -27,5 +27,3 @@ class WindowResizeHandler {
         }
     }
 }
-
-export default WindowResizeHandler;

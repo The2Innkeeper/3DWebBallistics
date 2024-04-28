@@ -1,16 +1,22 @@
-import { getRenderingSystem } from './simulation/systems/implementations/rendering/RenderingSystem';
-import { vectorControlManager } from './ui/VectorControl/VectorControlManager';
-import MenuToggle from './ui/MenuToggle';
-import { createVectorTypeSelector } from './ui/VectorControl/VectorTypeSelector';
-import WindowResizeHandler from './ui/WindowResizeHandler';
-import { createRandomTargetSpawner } from './simulation/systems/implementations/spawners/RandomTargetSpawner';
-import { VectorType } from './ui/VectorControl/types/VectorType';
+// app.ts
 import * as THREE from 'three';
+import { getRenderingSystem } from './simulation/systems/rendering/RenderingSystem';
+import { vectorControlManager } from './ui/VectorControl/VectorControlManager';
+import { MenuToggle } from './ui/MenuToggle';
+import { createVectorTypeSelector } from './ui/VectorControl/VectorTypeSelector';
+import { WindowResizeHandler } from './ui/WindowResizeHandler';
+import { createRandomTargetSpawner } from './simulation/systems/spawners/RandomTargetSpawner';
+import { VectorType } from './ui/VectorControl/types/VectorType';
 import { eventBus } from './communication/EventBus';
 import { Shooter } from './simulation/entities/implementations/Shooter';
 import { SpawnRandomTargetEvent } from './communication/events/entities/spawning/SpawnRandomTargetEvent';
 import { SpawnTargetEvent } from './communication/events/entities/spawning/SpawnTargetEvent';
-import { scaledDisplacementDerivatives } from './simulation/components/implementations/MovementComponents';
+import { scaledShooterTargetDisplacementDerivatives, scaledProjectileShooterDisplacementDerivatives } from './simulation/components/MovementComponents';
+import { gameLoop } from './simulation/systems/GameLoop';
+import { createTargetSpawner } from './simulation/systems/spawners/TargetSpawner';
+import { SpawnProjectileEvent } from './communication/events/entities/spawning/SpawnProjectileEvent';
+import { entityManager } from './simulation/systems/EntityManager';
+import { createProjectileSpawner } from './simulation/systems/spawners/ProjectileSpawner';
 
 let globalScene: THREE.Scene;  // Declare a global variable to hold the scene reference
 
@@ -19,12 +25,15 @@ function setupScene() {
     const renderingSystem = getRenderingSystem(); // Initializes and renders the scene renderer
     globalScene = renderingSystem.getScene(); // Get the scene instance from the rendering system
 
-    const targetSpawner = createRandomTargetSpawner(globalScene); // Pass the scene and minDistance to the target spawner
+    const targetSpawner = createTargetSpawner(globalScene); // Pass the scene and minDistance to the target spawner
+    const randomTargetSpawner = createRandomTargetSpawner(globalScene);
+    const projectileSpawner = createProjectileSpawner(globalScene);
 
     // Create a shooter instance and add it to the scene
     const shooter = new Shooter();
     shooter.addToScene(globalScene);
 
+    // Start the animation loop
     renderingSystem.animate();
 
     // Resize handling
@@ -36,6 +45,7 @@ function setupUI() {
     const menuToggleButton = document.getElementById('menu-toggle');
     const interfaceContainer = document.getElementById('interface-container');
     const spawnTargetButton = document.getElementById('spawn-target');
+    const spawnRandomTargetButton = document.getElementById('spawn-random-target');
     const fireProjectileButton = document.getElementById('fire-projectile');
 
     if (menuToggleButton && interfaceContainer) {
@@ -49,21 +59,28 @@ function setupUI() {
     }
 
     // Adding event listeners for spawning targets and projectiles
-    if (spawnTargetButton) {
-        spawnTargetButton.addEventListener('click', () => {
-            const displacementDerivatives = scaledDisplacementDerivatives;
-            eventBus.emit(SpawnTargetEvent, new SpawnTargetEvent(displacementDerivatives));
-            console.log('Spawn target event triggered with displacement derivatives:', displacementDerivatives);
-        });
-    }
+    spawnTargetButton?.addEventListener('click', () => {
+        const uiVectors = vectorControlManager.getAllVectorValues();
+        eventBus.emit(SpawnTargetEvent, new SpawnTargetEvent(uiVectors.target, uiVectors.shooter));
+        console.log('Spawn target event triggered with vectors:', uiVectors.target, uiVectors.shooter);
+    });
 
-    // if (fireProjectileButton) {
-    //     fireProjectileButton.addEventListener('click', () => {
-    //         const projectileVelocity = new THREE.Vector3(0, 0, 1); // Example velocity vector
-    //         eventBus.emit('spawnProjectile', projectileVelocity);
-    //         console.log(`Projectile spawn event triggered with velocity ${projectileVelocity}.`);
-    //     });
-    // }
+    spawnRandomTargetButton?.addEventListener('click', () => {
+        eventBus.emit(SpawnRandomTargetEvent, new SpawnRandomTargetEvent());
+        console.log('Spawn random target event triggered');
+    })
+
+    fireProjectileButton?.addEventListener('click', () => {
+        const target = entityManager.getOldestUnengagedTarget();
+        if (!target) {
+            console.log('No unengaged target available. Skipping projectile spawn.');
+            return;
+        }
+
+        const uiVectors = vectorControlManager.getAllVectorValues();
+        eventBus.emit(SpawnProjectileEvent, new SpawnProjectileEvent(uiVectors.target, uiVectors.shooter, uiVectors.projectile, target));
+        console.log(`Projectile spawn event triggered with ${uiVectors.target}, ${uiVectors.shooter}, ${uiVectors.projectile} and target ${ target}.`);
+    });
 }
 
 // Handle vector type selection change
@@ -84,6 +101,7 @@ function resizeScene(): void {
 function initializeApp(): void {
     setupUI();
     setupScene();
+    gameLoop.start();
 }
 
 // Properly handle the document's readiness state
