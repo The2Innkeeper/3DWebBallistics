@@ -1,15 +1,14 @@
 import { eventBus } from '../../../communication/EventBus';
 import * as THREE from 'three';
-import { IRenderable } from '../interfaces/IRenderable';
 import { ProjectileSpawnedEvent } from '../../../communication/events/entities/spawning/ProjectileSpawnedEvent';
+import { Entity } from './classes/Entity';
+import { FrameUpdateEvent } from '../../../communication/events/FrameUpdateEvent';
 
-export class Shooter implements IRenderable {
-    position: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
-    radius: number;
+export class Shooter extends Entity {
     height: number;
     public mesh: THREE.Mesh;
-    constructor(radius: number = 0.625, height: number = 2) {
-        this.radius = radius;
+    constructor(position: THREE.Vector3 = new THREE.Vector3(0, 0, 0), radius: number = 0.625, height: number = 2) {
+        super(position, radius);
         this.height = height;
         this.mesh = this.createMesh();
         this.registerUpdate();
@@ -25,24 +24,14 @@ export class Shooter implements IRenderable {
         return mesh;
     }
 
-    updateMesh(): void {
-        // Update the mesh position based on the shooter's position
-        this.mesh.position.copy(this.position);
-    }
-
-    // Method to add the target to a scene
-    addToScene(scene: THREE.Scene): void {
-        scene.add(this.mesh);
-    }
-
-    // Method to remove the target from a scene
-    removeFromScene(scene: THREE.Scene): void {
-        scene.remove(this.mesh);
-    }
-
     orientToProjectileVelocity(data: { initialProjectileVelocity: THREE.Vector3 }): void {
         const direction = data.initialProjectileVelocity.clone().normalize();
         this.mesh.lookAt(direction);
+    }
+
+    private onFrameUpdate(event: FrameUpdateEvent) {
+        const deltaTime = event.deltaTime;
+        this.updateMesh();
     }
 
     registerUpdate() {

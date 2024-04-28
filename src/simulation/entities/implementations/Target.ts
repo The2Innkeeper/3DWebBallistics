@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { BaseMovable } from './classes/BaseMovable';
 import { eventBus } from '../../../communication/EventBus';
 import { TargetExpiredEvent } from '../../../communication/events/entities/expiry/TargetExpiredEvent';
-import { FrameUpdateEvent } from '../../../communication/events/FrameUpdateEvent';
 
 export class Target extends BaseMovable {
     height: number;
@@ -21,7 +20,7 @@ export class Target extends BaseMovable {
         this.height = height;
         this.radialSegments = radialSegments;
         this.mesh = this.createMesh();
-        this.scaledPositionDerivatives = this.computeScaledPositionDerivatives(initialDisplacementDerivatives);
+        this.scaledPositionDerivatives = Target.computeScaledPositionDerivatives(initialDisplacementDerivatives);
         this.orientTowardsShooterAtOrigin();
     }
 
@@ -53,7 +52,7 @@ export class Target extends BaseMovable {
         return mesh;
     }
 
-    private computeScaledPositionDerivatives(initialDisplacementDerivatives: readonly THREE.Vector3[]): readonly THREE.Vector3[] {
+    private static computeScaledPositionDerivatives(initialDisplacementDerivatives: readonly THREE.Vector3[]): readonly THREE.Vector3[] {
         const scaledPositionDerivatives: THREE.Vector3[] = [];
         let factorial = 1;
 

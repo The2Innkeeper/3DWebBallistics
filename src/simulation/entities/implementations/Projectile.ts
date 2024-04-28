@@ -1,12 +1,10 @@
 // Projectile.ts
 import * as THREE from 'three';
 import { BaseMovable } from './classes/BaseMovable';
-import { IMovable } from '../interfaces/IMovable';
 import { checkCollision } from '../../systems/implementations/physics/CollisionDetection';
 import { eventBus } from '../../../communication/EventBus';
 import { ProjectileExpiredEvent } from '../../../communication/events/entities/expiry/ProjectileExpiredEvent';
 import { CollisionEvent } from '../../../communication/events/entities/CollisionEvent';
-import { FrameUpdateEvent } from '../../../communication/events/FrameUpdateEvent';
 
 export class Projectile extends BaseMovable {
     target: BaseMovable;
@@ -18,11 +16,17 @@ export class Projectile extends BaseMovable {
                 expiryLifetime?: number,
                 expiryDistance?: number,
             ) {
-        let position = new THREE.Vector3(0, 0, 0);
+        const scaledPositionDerivatives = Projectile.computeScaledPositionDerivatives(displacementDerivatives, projectilePositionDerivatives);
+        let position = scaledPositionDerivatives[0].clone();
         super(position, radius, expiryLifetime, expiryDistance);
+        this.scaledPositionDerivatives = scaledPositionDerivatives;
         this.target = target;
-        this.scaledPositionDerivatives = this.computeScaledPositionDerivatives(displacementDerivatives, projectilePositionDerivatives);
+        this.scaledPositionDerivatives = Projectile.computeScaledPositionDerivatives(displacementDerivatives, projectilePositionDerivatives);
         this.mesh = this.createMesh();
+    }
+
+    public getTarget(): BaseMovable {
+        return this.target;
     }
 
     updatePosition(deltaTime: number): void {
@@ -46,7 +50,7 @@ export class Projectile extends BaseMovable {
         return mesh;
     }
 
-    private computeScaledPositionDerivatives(initialDisplacementDerivatives: readonly THREE.Vector3[], projectilePositionDerivatives: readonly THREE.Vector3[]): readonly THREE.Vector3[] {
+    private static computeScaledPositionDerivatives(initialDisplacementDerivatives: readonly THREE.Vector3[], projectilePositionDerivatives: readonly THREE.Vector3[]): readonly THREE.Vector3[] {
         const scaledPositionDerivatives: THREE.Vector3[] = [];
         let factorial = 1;
         for (let i = 0; i < initialDisplacementDerivatives.length; i++) {

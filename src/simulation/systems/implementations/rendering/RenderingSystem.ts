@@ -55,6 +55,17 @@ export class RenderingSystem {
     public getScene(): THREE.Scene {
         return this.scene;
     }
+
+    public addEntity(entity: IRenderable): void {
+        this.entities.push(entity);
+    }
+
+    public removeEntity(entity: IRenderable): void {
+        const index = this.entities.indexOf(entity);
+        if (index !== -1) {
+            this.entities.splice(index, 1);
+        }
+    }
 }
 
 export function getRenderingSystem(): RenderingSystem {

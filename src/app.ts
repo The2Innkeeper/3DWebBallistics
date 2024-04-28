@@ -3,12 +3,14 @@ import { vectorControlManager } from './ui/VectorControl/VectorControlManager';
 import MenuToggle from './ui/MenuToggle';
 import { createVectorTypeSelector } from './ui/VectorControl/VectorTypeSelector';
 import WindowResizeHandler from './ui/WindowResizeHandler';
-import { createTargetSpawner } from './simulation/systems/implementations/spawners/TargetSpawner';
+import { createRandomTargetSpawner } from './simulation/systems/implementations/spawners/RandomTargetSpawner';
 import { VectorType } from './ui/VectorControl/types/VectorType';
 import * as THREE from 'three';
 import { eventBus } from './communication/EventBus';
 import { Shooter } from './simulation/entities/implementations/Shooter';
 import { SpawnRandomTargetEvent } from './communication/events/entities/spawning/SpawnRandomTargetEvent';
+import { SpawnTargetEvent } from './communication/events/entities/spawning/SpawnTargetEvent';
+import { scaledDisplacementDerivatives } from './simulation/components/implementations/MovementComponents';
 
 let globalScene: THREE.Scene;  // Declare a global variable to hold the scene reference
 
@@ -17,7 +19,7 @@ function setupScene() {
     const renderingSystem = getRenderingSystem(); // Initializes and renders the scene renderer
     globalScene = renderingSystem.getScene(); // Get the scene instance from the rendering system
 
-    const targetSpawner = createTargetSpawner(globalScene); // Pass the scene and minDistance to the target spawner
+    const targetSpawner = createRandomTargetSpawner(globalScene); // Pass the scene and minDistance to the target spawner
 
     // Create a shooter instance and add it to the scene
     const shooter = new Shooter();
@@ -49,8 +51,9 @@ function setupUI() {
     // Adding event listeners for spawning targets and projectiles
     if (spawnTargetButton) {
         spawnTargetButton.addEventListener('click', () => {
-            eventBus.emit(SpawnRandomTargetEvent, new SpawnRandomTargetEvent());
-            console.log('Target spawn event triggered.');
+            const displacementDerivatives = scaledDisplacementDerivatives;
+            eventBus.emit(SpawnTargetEvent, new SpawnTargetEvent(displacementDerivatives));
+            console.log('Spawn target event triggered with displacement derivatives:', displacementDerivatives);
         });
     }
 
