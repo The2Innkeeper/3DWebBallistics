@@ -1,0 +1,27 @@
+.help-button {
+    background-color: #ccc;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    height: 20px;
+    width: 20px;
+    /* Make sure width and height are equal */
+    line-height: 20px;
+    /* Center the text vertically */
+    margin-left: 5px;
+    text-align: center;
+    padding: 0;
+    /* Ensure no padding is distorting the size */
+}
+
+.tooltip {
+    background-color: #000;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12px;
+    padding: 5px;
+    position: relative;
+    z-index: 1;
+}

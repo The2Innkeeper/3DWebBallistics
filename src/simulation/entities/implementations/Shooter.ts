@@ -1,12 +1,12 @@
-import { eventBus } from '../../../communication/EventBus';
 import * as THREE from 'three';
+import { eventBus } from '../../../communication/EventBus';
 import { ProjectileSpawnedEvent } from '../../../communication/events/entities/spawning/ProjectileSpawnedEvent';
 import { Entity } from './classes/Entity';
-import { FrameUpdateEvent } from '../../../communication/events/FrameUpdateEvent';
 
 export class Shooter extends Entity {
     height: number;
     public mesh: THREE.Mesh;
+    
     constructor(position: THREE.Vector3 = new THREE.Vector3(0, 0, 0), radius: number = 0.625, height: number = 2) {
         super(position, radius);
         this.height = height;
@@ -24,16 +24,12 @@ export class Shooter extends Entity {
         return mesh;
     }
 
-    orientToProjectileVelocity(data: { initialProjectileVelocity: THREE.Vector3 }): void {
-        const direction = data.initialProjectileVelocity.clone().normalize();
-        this.mesh.lookAt(direction);
+    orientToProjectileVelocity(event: ProjectileSpawnedEvent): void {
+        const direction = event.projectile.getScaledPositionDerivatives()[1].clone().normalize();
+        this.mesh.lookAt(direction); // This makes the side face the projectile
+        this.mesh.rotation.x -= Math.PI / 2; // But we want the top face like a cannon
     }
-
-    private onFrameUpdate(event: FrameUpdateEvent) {
-        const deltaTime = event.deltaTime;
-        this.updateMesh();
-    }
-
+    
     registerUpdate() {
         eventBus.subscribe(ProjectileSpawnedEvent, this.orientToProjectileVelocity.bind(this));
     }

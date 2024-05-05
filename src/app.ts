@@ -1,22 +1,22 @@
 // app.ts
 import * as THREE from 'three';
 import { getRenderingSystem } from './simulation/systems/rendering/RenderingSystem';
-import { vectorControlManager } from './ui/VectorControl/VectorControlManager';
 import { MenuToggle } from './ui/MenuToggle';
-import { createVectorTypeSelector } from './ui/VectorControl/VectorTypeSelector';
+import { createVectorTypeSelector } from './ui/VectorControl/UIVectorTypeSelector';
 import { WindowResizeHandler } from './ui/WindowResizeHandler';
 import { createRandomTargetSpawner } from './simulation/systems/spawners/RandomTargetSpawner';
-import { VectorType } from './ui/VectorControl/types/VectorType';
+import { VectorType, VectorTypes } from './ui/VectorControl/types/VectorType';
 import { eventBus } from './communication/EventBus';
 import { Shooter } from './simulation/entities/implementations/Shooter';
 import { SpawnRandomTargetEvent } from './communication/events/entities/spawning/SpawnRandomTargetEvent';
 import { SpawnTargetEvent } from './communication/events/entities/spawning/SpawnTargetEvent';
-import { scaledShooterTargetDisplacementDerivatives, scaledProjectileShooterDisplacementDerivatives } from './simulation/components/MovementComponents';
 import { gameLoop } from './simulation/systems/GameLoop';
 import { createTargetSpawner } from './simulation/systems/spawners/TargetSpawner';
 import { SpawnProjectileEvent } from './communication/events/entities/spawning/SpawnProjectileEvent';
 import { entityManager } from './simulation/systems/EntityManager';
 import { createProjectileSpawner } from './simulation/systems/spawners/ProjectileSpawner';
+import { vectorControlManager } from './ui/VectorControl/UIVectorControlManager';
+import { computeScaledPositionDerivatives } from './simulation/utils/MovementUtils';
 
 let globalScene: THREE.Scene;  // Declare a global variable to hold the scene reference
 
@@ -55,7 +55,7 @@ function setupUI() {
     const vectorTypeSelectorElement = document.getElementById('vectorTypeSelector') as HTMLSelectElement;
     if (vectorTypeSelectorElement) {
         const vectorTypeSelector = createVectorTypeSelector(vectorTypeSelectorElement, handleVectorTypeChange);
-        vectorControlManager.showInitialVectorControl(vectorTypeSelector.getInitialType());
+        vectorControlManager.showInitialVectorControl();
     }
 
     // Adding event listeners for spawning targets and projectiles

@@ -1,7 +1,6 @@
 // MovementUtils.ts
 import * as THREE from 'three';
-import { scaledShooterTargetDisplacementDerivatives, scaledProjectileShooterDisplacementDerivatives as scaledShooterProjectileDisplacementDerivatives } from '../components/MovementComponents';
-import { vectorControlManager } from '../../ui/VectorControl/VectorControlManager';
+import { scaledShooterTargetDisplacementDerivatives as scaledTargetDerivatives, scaledProjectileShooterDisplacementDerivatives as scaledProjectileDerivatives } from '../components/MovementComponents';
 
 /**
  * Computes the displacement derivatives between from the first entity (tail) to the second entity (tip).
@@ -105,29 +104,21 @@ export function updateScaledDisplacementDerivatives(
     validateVectors(targetPositionDerivatives, 'target');
     validateVectors(shooterPositionDerivatives, 'shooter');
 
-    const displacementDerivatives = computeDisplacementDerivatives(targetPositionDerivatives, shooterPositionDerivatives);
-    scaledShooterTargetDisplacementDerivatives.length = 0;
-    scaledShooterTargetDisplacementDerivatives.push(...computeScaledPositionDerivatives(displacementDerivatives));
-    console.log(`Updated scaledShooterTargetDisplacementDerivatives to: ${JSON.stringify(scaledShooterTargetDisplacementDerivatives)}`);
-
+    const targetDisplacementDerivatives = computeDisplacementDerivatives(targetPositionDerivatives, shooterPositionDerivatives);
+    scaledTargetDerivatives.length = 0;
+    scaledTargetDerivatives.push(...computeScaledPositionDerivatives(targetDisplacementDerivatives));
+    
     if (projectileDisplacementDerivatives) {
-        if (projectileDisplacementDerivatives.length > vectorControlManager.projectileMinimizedIndex) {
-            projectileDisplacementDerivatives[vectorControlManager.projectileMinimizedIndex] = new THREE.Vector3(0, 0, 0);
-        }
-        else {
-            console.error('projectileDisplacementDerivatives is too small, does not contain the projectileMinimizedIndex');
-        }
-        validateVectors(projectileDisplacementDerivatives, 'projectile');
-        scaledShooterProjectileDisplacementDerivatives.length = 0;
-        scaledShooterProjectileDisplacementDerivatives.push(...computeScaledPositionDerivatives(projectileDisplacementDerivatives));
-        console.log(`Updated scaledShooterProjectileDisplacementDerivatives to: ${JSON.stringify(scaledShooterProjectileDisplacementDerivatives)}`);
+        const projectileDerivatives = computeDisplacementDerivatives(projectileDisplacementDerivatives, targetDisplacementDerivatives);
+        scaledProjectileDerivatives.length = 0;
+        scaledProjectileDerivatives.push(...computeScaledPositionDerivatives(projectileDerivatives));
     }
 }
 
 export function getScaledShooterTargetDisplacementDerivatives(): THREE.Vector3[] {
-    return scaledShooterTargetDisplacementDerivatives;
+    return scaledTargetDerivatives;
 }
 
 export function getScaledProjectileShooterDisplacementDerivatives(): THREE.Vector3[] {
-    return scaledShooterProjectileDisplacementDerivatives;
+    return scaledProjectileDerivatives;
 }
