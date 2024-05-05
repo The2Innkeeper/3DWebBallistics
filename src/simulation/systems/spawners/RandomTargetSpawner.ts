@@ -4,6 +4,7 @@ import { eventBus } from "../../../communication/EventBus";
 import { SpawnRandomTargetEvent } from "../../../communication/events/entities/spawning/SpawnRandomTargetEvent";
 import { TargetSpawnedEvent } from "../../../communication/events/entities/spawning/TargetSpawnedEvent";
 import { computeFactorial } from "../../utils/MovementUtils";
+import { createRandomVector } from "../../../ui/VectorControl/utils/VectorUtils";
 
 // A functional approach to TargetSpawner
 export function createRandomTargetSpawner(scene: THREE.Scene, randomRange = 1, minDistance = 1) {
@@ -25,11 +26,7 @@ export function createRandomTargetSpawner(scene: THREE.Scene, randomRange = 1, m
             let positionDerivative;
             let attempts = 0;
             do {
-                positionDerivative = new THREE.Vector3(
-                    (Math.random() - 0.5) * 2 * randomRange,
-                    (Math.random() - 0.5) * 2 * randomRange,
-                    (Math.random() - 0.5) * 2 * randomRange
-                );
+                positionDerivative = createRandomVector(-randomRange, randomRange);
                 attempts++;
             } while (positionDerivative.lengthSq() < minDistanceSquared && attempts < 2);
 

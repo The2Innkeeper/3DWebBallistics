@@ -6,7 +6,8 @@ import { SpawnProjectileEvent } from "../../../communication/events/entities/spa
 import { ProjectileSpawnedEvent } from "../../../communication/events/entities/spawning/ProjectileSpawnedEvent";
 import { entityManager } from "../../systems/EntityManager";
 import { updateScaledDisplacementDerivatives } from "../../utils/MovementUtils";
-import { scaledProjectileShooterDisplacementDerivatives } from "../../components/MovementComponents";
+import { scaledProjectileShooterDisplacementDerivatives, scaledShooterTargetDisplacementDerivatives } from "../../components/MovementComponents";
+import { PhysicsSolver } from "../../utils/PhysicsSolver";
 
 // A functional approach to ProjectileSpawner
 export function createProjectileSpawner(scene: THREE.Scene) {
@@ -19,6 +20,12 @@ export function createProjectileSpawner(scene: THREE.Scene) {
         if (target) {
             // Update the backend vectors
             updateScaledDisplacementDerivatives(targetDerivatives, shooterDerivatives, projectileDerivatives);
+
+            const scaledProjectileDerivatives = [...scaledProjectileShooterDisplacementDerivatives];
+            const readOnlyIndex = 1;
+            const updatedScaledVelocityVector = PhysicsSolver.calculateMinimizedInitialVelocity(scaledShooterTargetDisplacementDerivatives, scaledProjectileShooterDisplacementDerivatives);
+            scaledProjectileDerivatives[readOnlyIndex] = updatedScaledVelocityVector;
+            console.log("New initial velocity:", scaledProjectileDerivatives[readOnlyIndex]);
 
             console.log("Spawning projectile with parameters:", {
                 scaledProjectileShooterDisplacementDerivatives,

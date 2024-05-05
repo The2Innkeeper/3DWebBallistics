@@ -1,44 +1,90 @@
-// Definition of the LaurentPolynomial class
-export class LaurentPolynomial {
-    public positiveCoefficients: number[];
-    public negativeCoefficients: number[];
+import { Polynomial } from "@the2innkeeper/polynomial-real-root-finding/dist/lib/polynomial/types";
 
-    constructor(positiveCoefficients: number[] = [], negativeCoefficients: number[] = []) {
-        this.positiveCoefficients = positiveCoefficients;
-        this.negativeCoefficients = negativeCoefficients;
+export class LaurentPolynomial {
+    // Coefficients for negative exponents, in increasing order of degree
+    negativeDegreeCoefficients: number[];
+    // Coefficients for nonnegative exponents, in increasing order of degree
+    positiveDegreeCoefficients: number[];
+
+    constructor(negativeDegreeCoefficients: number[] = [], positiveDegreeCoefficients: number[] = []) {
+        this.negativeDegreeCoefficients = negativeDegreeCoefficients;
+        this.positiveDegreeCoefficients = positiveDegreeCoefficients;
     }
 
-   // Evaluate the polynomial using Horner's method
-    evaluateAt(x: number): number {
-        let posResult = 0;
-        for (let i = this.positiveCoefficients.length - 1; i >= 0; i--) {
-            posResult = posResult * x + this.positiveCoefficients[i];
+    static fromPolynomial(polynomial: Polynomial): LaurentPolynomial {
+        return new LaurentPolynomial([], polynomial);
+    }
+
+    multiplyByXPower(exponent: number): LaurentPolynomial {
+        if (exponent === 0) return this;
+
+        let newNegCoeffs: number[] = [];
+        let newPosCoeffs: number[] = [];
+
+        if (exponent > 0) {
+            newNegCoeffs = this.negativeDegreeCoefficients.slice(exponent) || [];
+            newPosCoeffs = Array(exponent).fill(0).concat(this.negativeDegreeCoefficients.slice(0, exponent), this.positiveDegreeCoefficients);
+        } else {
+            const absExponent = -exponent;
+            newPosCoeffs = this.positiveDegreeCoefficients.slice(absExponent) || [];
+            newNegCoeffs = this.positiveDegreeCoefficients.slice(0, absExponent).concat(this.negativeDegreeCoefficients);
+            newPosCoeffs = Array(absExponent).fill(0).concat(newPosCoeffs);
         }
 
-        let negResult = 0;
-        if (x !== 0) {  // Ensure x is not zero for negative powers
-            for (let i = 0; i < this.negativeCoefficients.length; i++) {
-                negResult = negResult / x + this.negativeCoefficients[i];
+        return new LaurentPolynomial(newNegCoeffs, newPosCoeffs);
+    }
+
+    derivative(): LaurentPolynomial {
+        const newPosDerivatives = this.positiveDegreeCoefficients.map((coeff, index) => coeff * index).slice(1);
+        
+        // Handling negative coefficients' derivatives properly
+        let newNegDerivatives: number[] = [];
+
+        if (this.negativeDegreeCoefficients.length > 0) {
+            newNegDerivatives = new Array(this.negativeDegreeCoefficients.length).fill(0);
+            // We iterate from the least negative to the most negative (which is the reverse of the index)
+            for (let i = 0; i < this.negativeDegreeCoefficients.length; i++) {
+                const power = -i - 1; // Exponent of the current term
+                newNegDerivatives[i] = power * this.negativeDegreeCoefficients[i];
             }
-            negResult /= x;  // Final division for the lowest negative power
+        }
+
+        return new LaurentPolynomial(newNegDerivatives, newPosDerivatives);
+    }
+
+    evaluateAt(x: number): number {
+        if (x === 0 && this.negativeDegreeCoefficients.length > 0) {
+            throw new Error('Division by zero encountered when evaluating negative powers at x = 0');
+        }
+
+        // Evaluate positive degree coefficients using Horner's method
+        let posResult = 0;
+        for (let i = this.positiveDegreeCoefficients.length - 1; i >= 0; i--) {
+            posResult = posResult * x + this.positiveDegreeCoefficients[i];
+        }
+
+        // Evaluate negative degree coefficients
+        // Remember the negative coefficients are stored from most negative to less negative
+        let negResult = 0;
+        for (let i = this.negativeDegreeCoefficients.length - 1; i >= 0; i--) {
+            negResult = negResult / x + this.negativeDegreeCoefficients[i];
         }
 
         return posResult + negResult;
     }
 
-    // Multiply polynomial by a scalar
-    multiplyByScalar(scalar: number): LaurentPolynomial {
-        return new LaurentPolynomial(
-            this.positiveCoefficients.map(coeff => coeff * scalar),
-            this.negativeCoefficients.map(coeff => coeff * scalar)
-        );
-    }
+    convertToNumeratorPolynomial(): Polynomial {
+        const totalLength = this.positiveDegreeCoefficients.length + this.negativeDegreeCoefficients.length;
+        const newCoefficients = new Array(totalLength).fill(0);
 
-    // Derivative of the polynomial
-    derivative(): LaurentPolynomial {
-        const posDeriv = this.positiveCoefficients.map((coeff, index) => coeff * index).slice(1);
-        const negDeriv = this.negativeCoefficients.map((coeff, index) => -coeff * (index + 1));
+        for (let i = 0; i < this.negativeDegreeCoefficients.length; i++) {
+            newCoefficients[i] = this.negativeDegreeCoefficients[i];
+        }
 
-        return new LaurentPolynomial(posDeriv, negDeriv);
+        for (let i = 0; i < this.positiveDegreeCoefficients.length; i++) {
+            newCoefficients[i + this.negativeDegreeCoefficients.length] = this.positiveDegreeCoefficients[i];
+        }
+
+        return newCoefficients;
     }
 }
