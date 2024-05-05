@@ -128,7 +128,7 @@ input[type='number'],
 select {
     width: 100%;
     padding: 8px;
-    margin: 5px 0 20px 0;
+    margin: 5px 0 0px 0;
     display: inline-block;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -148,6 +148,36 @@ input[readonly]:focus {
     color: #7d7d7d;
     outline: none;
     /* Removes the default focus outline */
+}
+/*!**************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./src/ui/styles/menu/help-button.css ***!
+  \**************************************************************************************/
+.help-button {
+    background-color: #ccc;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    height: 20px;
+    width: 20px;
+    /* Make sure width and height are equal */
+    line-height: 20px;
+    /* Center the text vertically */
+    margin-left: 5px;
+    text-align: center;
+    padding: 0;
+    /* Ensure no padding is distorting the size */
+}
+
+.tooltip {
+    background-color: #000;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12px;
+    padding: 5px;
+    position: relative;
+    z-index: 1;
 }
 /*!***********************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./src/ui/styles/menu/dropdown.css ***!
