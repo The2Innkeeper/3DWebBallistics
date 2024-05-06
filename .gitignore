@@ -1,5 +1,6 @@
 .parcel-cache/
 /old/
+.npmrc
 
 # Node modules
 /node_modules/
