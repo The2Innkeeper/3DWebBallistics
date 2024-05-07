@@ -1,4 +1,4 @@
-import { Polynomial } from "@the2innkeeper/polynomial-real-root-finding/dist/lib/polynomial/types";
+import { Polynomial } from "polynomial-real-root-finding/dist/lib/polynomial/types";
 
 export class LaurentPolynomial {
     // Coefficients for negative exponents, in increasing order of degree
