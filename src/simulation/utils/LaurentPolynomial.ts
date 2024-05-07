@@ -63,12 +63,17 @@ export class LaurentPolynomial {
             posResult = posResult * x + this.positiveDegreeCoefficients[i];
         }
 
+        if (this.negativeDegreeCoefficients.length === 0) {
+            return posResult;
+        }
+
         // Evaluate negative degree coefficients
         // Remember the negative coefficients are stored from most negative to less negative
         let negResult = 0;
-        for (let i = this.negativeDegreeCoefficients.length - 1; i >= 0; i--) {
+        for (let i = 0; i < this.negativeDegreeCoefficients.length; i++) {
             negResult = negResult / x + this.negativeDegreeCoefficients[i];
         }
+        negResult /= x; // Remember that the last exponent is -1
 
         return posResult + negResult;
     }
