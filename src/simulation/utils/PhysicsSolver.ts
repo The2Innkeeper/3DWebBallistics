@@ -1,5 +1,5 @@
 import { Vector3} from 'three';
-import { Polynomial, evaluatePolynomial, findStrictlyPositiveRoots } from '@the2innkeeper/polynomial-real-root-finding';
+import { Polynomial, evaluatePolynomial, findStrictlyPositiveRoots } from 'polynomial-real-root-finding';
 import { computeDisplacementDerivatives } from './MovementUtils';
 import { LaurentPolynomial } from './LaurentPolynomial';
 
