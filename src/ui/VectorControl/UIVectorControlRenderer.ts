@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { vectorControlManager } from './UIVectorControlManager';
 import { VectorUpdateEvent } from './events';
 import { eventBus } from '../../communication/EventBus';
-import { VectorType } from './types/VectorType';
+import { UIVectorType } from './types/VectorType';
 import { UIVectorElementFactory } from './UIVectorElementFactory';
 import { UIVectorModel } from './UIVectorModel';
 
@@ -12,7 +12,7 @@ export class UIVectorControlRenderer {
         private container: HTMLElement,
         private label: string,
         private uiVectorModel: UIVectorModel,
-        private vectorType: VectorType,
+        private vectorType: UIVectorType,
         private readOnlyIndices?: number[],
     ) {}
 
@@ -44,6 +44,7 @@ export class UIVectorControlRenderer {
             const vectorElement = UIVectorElementFactory.createVectorElement(
                 vector,
                 index,
+                this.vectorType,
                 this.readOnlyIndices,
             );
             vectorsList.appendChild(vectorElement);
@@ -51,7 +52,7 @@ export class UIVectorControlRenderer {
 
         this.container.appendChild(vectorsList);
     }
-
+    
     private renderBottomButtons(): void {
         const addZeroButton = this.createButton('Add Zero Vector', () => {
             this.uiVectorModel.addZeroVector();
@@ -73,19 +74,5 @@ export class UIVectorControlRenderer {
         button.textContent = label;
         button.onclick = onClick;
         return button;
-    }
-
-    private makeReadOnly(index: number): void {
-        const vectorElements = this.container.getElementsByClassName('vector-controls');
-        if (vectorElements[index]) {
-            const inputs = vectorElements[index].getElementsByTagName('input');
-            for (let input of inputs) {
-                input.readOnly = true;
-            }
-            const buttons = vectorElements[index].getElementsByTagName('button');
-            for (let button of buttons) {
-                button.disabled = true;
-            }
-        }
     }
 }

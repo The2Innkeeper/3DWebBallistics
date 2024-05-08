@@ -5,7 +5,7 @@ import { MenuToggle } from './ui/MenuToggle';
 import { createVectorTypeSelector } from './ui/VectorControl/UIVectorTypeSelector';
 import { WindowResizeHandler } from './ui/WindowResizeHandler';
 import { createRandomTargetSpawner } from './simulation/systems/spawners/RandomTargetSpawner';
-import { VectorType, VectorTypes } from './ui/VectorControl/types/VectorType';
+import { UIVectorType, UIVectorTypes } from './ui/VectorControl/types/VectorType';
 import { eventBus } from './communication/EventBus';
 import { Shooter } from './simulation/entities/implementations/Shooter';
 import { SpawnRandomTargetEvent } from './communication/events/entities/spawning/SpawnRandomTargetEvent';
@@ -84,7 +84,7 @@ function setupUI() {
 }
 
 // Handle vector type selection change
-function handleVectorTypeChange(selectedType: VectorType): void {
+function handleVectorTypeChange(selectedType: UIVectorType): void {
     vectorControlManager.handleVectorTypeChange(selectedType);
 }
 

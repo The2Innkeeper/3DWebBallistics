@@ -1,23 +1,23 @@
-import { VectorType, VectorTypes } from './types/VectorType';
+import { UIVectorType, UIVectorTypes } from './types/VectorType';
 import { UIVectorControl } from './UIVectorControl';
 import { UIVectorControlFactory } from './UIVectorControlFactory';
 import { eventBus } from '../../communication/EventBus';
-import { VectorUpdateEvent } from './events/VectorUpdateEvent';
+import { VectorUpdateEvent as UIVectorUpdateEvent } from './events/UIVectorUpdateEvent';
 import { updateScaledDisplacementDerivatives } from '../../simulation/utils/MovementUtils';
 import * as THREE from 'three';
 
 class UIVectorControlManager {
-    private vectorControls: Record<VectorType, UIVectorControl>;
+    private vectorControls: Record<UIVectorType, UIVectorControl>;
 
     constructor() {
         // First, create the 'shooter' vector control independently.
-        const shooterControl = UIVectorControlFactory.createVectorControl(VectorTypes.Shooter);
+        const shooterControl = UIVectorControlFactory.createVectorControl(UIVectorTypes.Shooter);
 
         // Now, you can safely use 'shooterControl.getVectorValues()[0]' because 'shooterControl' is already defined.
         this.vectorControls = {
-            target: UIVectorControlFactory.createVectorControl(VectorTypes.Target),
+            target: UIVectorControlFactory.createVectorControl(UIVectorTypes.Target),
             shooter: shooterControl,
-            projectile: UIVectorControlFactory.createVectorControl(VectorTypes.Projectile, 3, 3, [0, 1], shooterControl.getVectorValues()[0]),
+            projectile: UIVectorControlFactory.createVectorControl(UIVectorTypes.Projectile, 3, 3, [0, 1], shooterControl.getVectorValues()[0]),
         };
 
         this.subscribeToEvents();
@@ -25,10 +25,10 @@ class UIVectorControlManager {
     }
 
     private subscribeToEvents(): void {
-        eventBus.subscribe(VectorUpdateEvent, this.handleVectorUpdate.bind(this));
+        eventBus.subscribe(UIVectorUpdateEvent, this.handleVectorUpdate.bind(this));
     }
 
-    private handleVectorUpdate(event: VectorUpdateEvent): void {
+    private handleVectorUpdate(event: UIVectorUpdateEvent): void {
         console.log(`Updating backend values for ${event.vectorType} vectors:`, event.vectors);
         this.updateBackendValues();
     }
@@ -42,7 +42,7 @@ class UIVectorControlManager {
         updateScaledDisplacementDerivatives(vectors.target, vectors.shooter, vectors.projectile);
     }
 
-    public handleVectorTypeChange(selectedType: VectorType): void {
+    public handleVectorTypeChange(selectedType: UIVectorType): void {
         this.hideAllVectorControls();
         const selectedControl = this.vectorControls[selectedType];
         selectedControl.show();
@@ -53,7 +53,7 @@ class UIVectorControlManager {
         this.vectorControls.target.show();
     }
 
-    public getAllVectorValues(): Record<VectorType, THREE.Vector3[]> {
+    public getAllVectorValues(): Record<UIVectorType, THREE.Vector3[]> {
         return {
             shooter: this.vectorControls.shooter.getVectorValues(),
             projectile: this.vectorControls.projectile.getVectorValues(),

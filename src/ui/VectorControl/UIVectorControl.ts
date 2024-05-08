@@ -1,7 +1,7 @@
 import { UIVectorModel } from './UIVectorModel';
 import { UIVectorControlRenderer } from './UIVectorControlRenderer';
 import { UIVectorControlEventHandler } from './UIVectorControlEventHandler';
-import { VectorType } from './types/VectorType';
+import { UIVectorType } from './types/VectorType';
 import * as THREE from 'three';
 
 export class UIVectorControl {
@@ -11,7 +11,7 @@ export class UIVectorControl {
 
     constructor(
         private container: HTMLElement, 
-        private vectorType: VectorType, 
+        private vectorType: UIVectorType, 
         private label: string, 
         private randomCount = 3, 
         private randomRange: number = 1, 
