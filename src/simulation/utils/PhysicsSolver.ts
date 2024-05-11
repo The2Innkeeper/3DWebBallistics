@@ -78,9 +78,47 @@ export class PhysicsSolver {
         return minimumInput;
     }
 
+    /**
+     * Applies a Taylor shift transformation to a vector coefficient polynomial.
+     * @param vectors Array of THREE.Vector3 objects to transform.
+     * @param shift THREE.Vector3 representing the shift to apply.
+     * @returns The vectors coefficients of the polynomial s(T + shift)
+     */
+    static vectorTaylorShift(vectors: Vector3[], shift: number): Vector3[] {
+        const shiftedVectors = vectors.map(v => v.clone()); // Clone array of vectors
+        const powers = new Array(vectors.length);
+        const binomials = new Array(vectors.length);
+
+        // Pre-compute powers of shift
+        for (let n = 1; n < vectors.length; n++) {
+            powers[n] = Math.pow(shift, n);
+        }
+
+        // Pre-compute binomial coefficients
+        for (let i = 0; i < vectors.length; i++) {
+            binomials[i] = new Array(i + 1);
+            for (let j = 0; j <= i; j++) {
+                binomials[i][j] = binomial(i, j);
+            }
+        }
+
+        // Apply the Taylor shift using pre-computed values
+        for (let i = 1; i < vectors.length; i++) {
+            for (let j = 0; j < i; j++) {
+                const scale = binomials[i][j] * powers[i - j];
+                shiftedVectors[j].x += vectors[i].x * scale;
+                shiftedVectors[j].y += vectors[i].y * scale;
+                shiftedVectors[j].z += vectors[i].z * scale;
+            }
+        }
+
+        return shiftedVectors;
+    }
+
     static calculateInitialDerivativeWithFallback(
         scaledDeltaSTVectors: Vector3[],
         scaledDeltaSPVectors: Vector3[],
+        currentTargetLifetime: number,
         indexToMinimize: number,
         fallbackIntersectionTime: number,
         projectileExpiryLifetime: number
@@ -89,8 +127,11 @@ export class PhysicsSolver {
             fallbackIntersectionTime = projectileExpiryLifetime - 1 > 0 ? projectileExpiryLifetime - 1 : 1;
         }
 
+        // Account for the time between the target spawn and projectile spawn
+        const shiftedTargetVectors = PhysicsSolver.vectorTaylorShift(scaledDeltaSTVectors, currentTargetLifetime);
+
         // Compute the relative vectors (deltaPT := T - P) by taking the difference between the projectile's derivatives and the target's derivatives.
-        const scaledRelativeVectors = computeDisplacementDerivatives(scaledDeltaSPVectors, scaledDeltaSTVectors);
+        const scaledRelativeVectors = computeDisplacementDerivatives(scaledDeltaSPVectors, shiftedTargetVectors);
 
         // Expand the velocity numerator polynomial s(T).s(T) using Horner's method
         const velocityNumeratorPolynomial = this.expandDotProductPolynomial(scaledRelativeVectors);
@@ -202,4 +243,17 @@ export class PhysicsSolver {
         // Return the minimum initial velocity
         return minimizedInitialVelocity;
     }
+}
+
+/**
+ * Calculate the binomial coefficient (n choose k).
+ * @param n The total number of items.
+ * @param k The number of items to choose.
+ * @returns The binomial coefficient.
+ */
+function binomial(n: number, k: number): number {
+    let coeff = 1;
+    for (let i = n - k + 1; i <= n; i++) coeff *= i;
+    for (let i = 1; i <= k; i++) coeff /= i;
+    return coeff;
 }

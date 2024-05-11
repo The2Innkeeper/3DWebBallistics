@@ -36,7 +36,7 @@ export abstract class BaseMovable extends Entity implements IMovable {
         eventBus.subscribe(FrameUpdateEvent, this.onFrameUpdate.bind(this));
     }
 
-    protected evaluatePositionAt(time: number): THREE.Vector3 {
+    public evaluatePositionAt(time: number): THREE.Vector3 {
         let position = new THREE.Vector3(0, 0, 0);
         for (let i = this.scaledPositionDerivatives.length - 1; i >= 0; i--) {
             position.multiplyScalar(time).add(this.scaledPositionDerivatives[i]);
@@ -44,7 +44,7 @@ export abstract class BaseMovable extends Entity implements IMovable {
         return position;
     }
 
-    public getScaledPositionDerivatives(): readonly THREE.Vector3[] {
-        return this.scaledPositionDerivatives;
+    public getScaledPositionDerivatives(): THREE.Vector3[] {
+        return this.scaledPositionDerivatives.map(vector => vector.clone());
     }
 }

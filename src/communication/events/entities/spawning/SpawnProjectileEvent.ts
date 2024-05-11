@@ -1,5 +1,5 @@
-import { IMovable } from 'src/simulation/entities/interfaces/IMovable';
 import * as THREE from 'three';
+import { BaseMovable } from '../../../../simulation/entities/implementations/classes/BaseMovable';
 
 export class SpawnProjectileEvent {
     constructor(
@@ -8,7 +8,7 @@ export class SpawnProjectileEvent {
         public readonly projectileDerivatives: THREE.Vector3[],
         public readonly indexToMinimize: number,
         public readonly fallbackIntersectionTime: number,
-        public readonly target: IMovable,
+        public readonly target: BaseMovable,
         public readonly radius: number = 0.625,
         public readonly expiryLifeTime: number = 20,
         public readonly expiryDistance: number = 1000,

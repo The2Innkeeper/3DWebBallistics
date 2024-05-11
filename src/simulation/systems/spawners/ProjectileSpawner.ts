@@ -5,7 +5,7 @@ import { eventBus } from "../../../communication/EventBus";
 import { SpawnProjectileEvent } from "../../../communication/events/entities/spawning/SpawnProjectileEvent";
 import { ProjectileSpawnedEvent } from "../../../communication/events/entities/spawning/ProjectileSpawnedEvent";
 import { updateScaledDisplacementDerivatives } from "../../utils/MovementUtils";
-import { scaledProjectileShooterDisplacementDerivatives, scaledShooterTargetDisplacementDerivatives } from "../../components/MovementComponents";
+import { scaledDeltaSPDerivatives, scaledDeltaSTDerivatives } from "../../components/MovementComponents";
 import { PhysicsSolver } from "../../utils/PhysicsSolver";
 import { getProjectileSetting } from "../../components/projectileSettings";
 
@@ -23,10 +23,11 @@ export function createProjectileSpawner(scene: THREE.Scene) {
         updateScaledDisplacementDerivatives(targetDerivatives, shooterDerivatives, projectileDerivatives);
 
         // Spawn the projectile based on whether a minimum is possible
-        const scaledProjectileDerivatives = [...scaledProjectileShooterDisplacementDerivatives];
+        const scaledProjectileDerivatives = [...scaledDeltaSPDerivatives];
         const updatedScaledVelocityVector = PhysicsSolver.calculateInitialDerivativeWithFallback(
-                                                scaledShooterTargetDisplacementDerivatives,
-                                                scaledProjectileShooterDisplacementDerivatives,
+                                                target.getScaledPositionDerivatives(),
+                                                scaledDeltaSPDerivatives,
+                                                target.lifeTime,
                                                 indexToMinimize,
                                                 getProjectileSetting('fallbackIntersectionTime'),
                                                 expiryLifeTime
