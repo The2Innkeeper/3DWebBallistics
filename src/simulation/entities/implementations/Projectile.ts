@@ -5,12 +5,13 @@ import { checkCollision } from '../../systems/physics/CollisionDetection';
 import { eventBus } from '../../../communication/EventBus';
 import { ProjectileExpiredEvent } from '../../../communication/events/entities/expiry/ProjectileExpiredEvent';
 import { CollisionEvent } from '../../../communication/events/entities/CollisionEvent';
+import { IMovable } from '../interfaces/IMovable';
 
 export class Projectile extends BaseMovable {
-    target: BaseMovable;
+    target: IMovable;
 
     constructor(scaledPositionDerivatives: readonly THREE.Vector3[],
-                target: BaseMovable,
+                target: IMovable,
                 radius: number,
                 expiryLifetime?: number,
                 expiryDistance?: number,
@@ -22,7 +23,7 @@ export class Projectile extends BaseMovable {
         this.mesh = this.createMesh();
     }
 
-    public getTarget(): BaseMovable {
+    public getTarget(): IMovable {
         return this.target;
     }
 

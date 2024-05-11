@@ -4,7 +4,7 @@ import { HelpMessageService } from './helpButtons/HelpMessageService';
 import { HelpButton } from './helpButtons/HelpButton';
 
 export class UIVectorElementFactory {
-    private static createHelpButton(vectorElement: HTMLElement, vectorType: UIVectorType, index: number, readOnly: boolean, removeDisabled: boolean): void {
+    public static createHelpButton(vectorElement: HTMLElement, vectorType: UIVectorType, index: number, readOnly: boolean, removeDisabled: boolean): void {
         const helpMessage = HelpMessageService.getHelpMessage(vectorType, index, readOnly, removeDisabled);
         if (helpMessage) {
             new HelpButton(vectorElement, helpMessage);

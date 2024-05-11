@@ -4,52 +4,56 @@ import { Projectile } from "../../entities/implementations/Projectile";
 import { eventBus } from "../../../communication/EventBus";
 import { SpawnProjectileEvent } from "../../../communication/events/entities/spawning/SpawnProjectileEvent";
 import { ProjectileSpawnedEvent } from "../../../communication/events/entities/spawning/ProjectileSpawnedEvent";
-import { entityManager } from "../../systems/EntityManager";
 import { updateScaledDisplacementDerivatives } from "../../utils/MovementUtils";
 import { scaledProjectileShooterDisplacementDerivatives, scaledShooterTargetDisplacementDerivatives } from "../../components/MovementComponents";
 import { PhysicsSolver } from "../../utils/PhysicsSolver";
+import { getProjectileSetting } from "../../components/projectileSettings";
 
 // A functional approach to ProjectileSpawner
 export function createProjectileSpawner(scene: THREE.Scene) {
-    function spawnProjectile(event: SpawnProjectileEvent) {
-        const { targetDerivatives, shooterDerivatives, projectileDerivatives, radius, expiryLifeTime, expiryDistance } = event;
+    function spawnProjectile(event: SpawnProjectileEvent): Projectile | null {
+        const { targetDerivatives, shooterDerivatives, projectileDerivatives, indexToMinimize, target, radius, expiryLifeTime, expiryDistance } = event;
 
-        // Get the oldest unengaged target from the entity manager
-        const target = entityManager.getOldestUnengagedTarget();
-
-        if (target) {
-            // Update the backend vectors
-            updateScaledDisplacementDerivatives(targetDerivatives, shooterDerivatives, projectileDerivatives);
-
-            const scaledProjectileDerivatives = [...scaledProjectileShooterDisplacementDerivatives];
-            const readOnlyIndex = 1;
-            const updatedScaledVelocityVector = PhysicsSolver.calculateMinimizedInitialVelocity(scaledShooterTargetDisplacementDerivatives, scaledProjectileShooterDisplacementDerivatives);
-            scaledProjectileDerivatives[readOnlyIndex] = updatedScaledVelocityVector;
-            console.log("New initial velocity:", scaledProjectileDerivatives[readOnlyIndex]);
-
-            console.log("Spawning projectile with parameters:", {
-                scaledProjectileShooterDisplacementDerivatives,
-                radius,
-                expiryLifeTime,
-                expiryDistance,
-                target
-            });
-
-            const projectile = new Projectile(
-                scaledProjectileShooterDisplacementDerivatives,
-                target,
-                radius,
-                expiryLifeTime,
-                expiryDistance
-            );
-            projectile.addToScene(scene);
-            eventBus.emit(ProjectileSpawnedEvent, new ProjectileSpawnedEvent(projectile));
-
-            return projectile;
-        } else {
+        if (!target) {
             console.log("No unengaged target available. Skipping projectile spawn.");
             return null;
         }
+
+        // Update the backend vectors
+        updateScaledDisplacementDerivatives(targetDerivatives, shooterDerivatives, projectileDerivatives);
+
+        // Spawn the projectile based on whether a minimum is possible
+        const scaledProjectileDerivatives = [...scaledProjectileShooterDisplacementDerivatives];
+        const updatedScaledVelocityVector = PhysicsSolver.calculateInitialDerivativeWithFallback(
+                                                scaledShooterTargetDisplacementDerivatives,
+                                                scaledProjectileShooterDisplacementDerivatives,
+                                                indexToMinimize,
+                                                getProjectileSetting('fallbackIntersectionTime'),
+                                                expiryLifeTime
+                                            );
+        scaledProjectileDerivatives[indexToMinimize] = updatedScaledVelocityVector;
+        console.log("New initial velocity:", scaledProjectileDerivatives[indexToMinimize]);
+
+        console.log("Spawning projectile with parameters:", {
+            scaledProjectileDerivatives,
+            target,
+            radius,
+            expiryLifeTime,
+            expiryDistance,
+        });
+
+        const projectile = new Projectile(
+            scaledProjectileDerivatives,
+            target,
+            radius,
+            expiryLifeTime,
+            expiryDistance
+        );
+
+        projectile.addToScene(scene);
+        eventBus.emit(ProjectileSpawnedEvent, new ProjectileSpawnedEvent(projectile));
+
+        return projectile;
     }
 
     eventBus.subscribe(SpawnProjectileEvent, spawnProjectile);

@@ -17,6 +17,7 @@ import { entityManager } from './simulation/systems/EntityManager';
 import { createProjectileSpawner } from './simulation/systems/spawners/ProjectileSpawner';
 import { vectorControlManager } from './ui/VectorControl/UIVectorControlManager';
 import { computeScaledPositionDerivatives } from './simulation/utils/MovementUtils';
+import { ProjectileSetting, getProjectileSetting } from './simulation/components/projectileSettings';
 
 let globalScene: THREE.Scene;  // Declare a global variable to hold the scene reference
 
@@ -78,8 +79,15 @@ function setupUI() {
         }
 
         const uiVectors = vectorControlManager.getAllVectorValues();
-        eventBus.emit(SpawnProjectileEvent, new SpawnProjectileEvent(uiVectors.target, uiVectors.shooter, uiVectors.projectile, target));
-        console.log(`Projectile spawn event triggered with ${uiVectors.target}, ${uiVectors.shooter}, ${uiVectors.projectile} and target ${ target}.`);
+        eventBus.emit(SpawnProjectileEvent, new SpawnProjectileEvent(
+            uiVectors.target, 
+            uiVectors.shooter, 
+            uiVectors.projectile, 
+            getProjectileSetting(ProjectileSetting.IndexToMinimize), 
+            getProjectileSetting(ProjectileSetting.FallbackIntersectionTime), 
+            target
+        ));
+        console.log(`Projectile spawn event triggered with ${uiVectors.target}, ${uiVectors.shooter}, ${uiVectors.projectile}, indexToMinimize ${getProjectileSetting(ProjectileSetting.IndexToMinimize)}, fallbackIntersectionTime ${getProjectileSetting(ProjectileSetting.FallbackIntersectionTime)} and target ${ target}.`);
     });
 }
 

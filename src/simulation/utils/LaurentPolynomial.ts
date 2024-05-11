@@ -15,6 +15,12 @@ export class LaurentPolynomial {
         return new LaurentPolynomial([], polynomial);
     }
 
+    scaleCoefficients(factor: number): LaurentPolynomial {
+        const newNegCoeffs = this.negativeDegreeCoefficients.map(coeff => coeff * factor);
+        const newPosCoeffs = this.positiveDegreeCoefficients.map(coeff => coeff * factor);
+        return new LaurentPolynomial(newNegCoeffs, newPosCoeffs);
+    }
+
     multiplyByXPower(exponent: number): LaurentPolynomial {
         if (exponent === 0) return this;
 

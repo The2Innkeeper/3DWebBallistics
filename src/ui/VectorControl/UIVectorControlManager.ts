@@ -5,6 +5,7 @@ import { eventBus } from '../../communication/EventBus';
 import { UIVectorUpdateEvent as UIVectorUpdateEvent } from './events/UIVectorUpdateEvent';
 import { updateScaledDisplacementDerivatives } from '../../simulation/utils/MovementUtils';
 import * as THREE from 'three';
+import { ProjectileSetting, getProjectileSetting } from '../../simulation/components/projectileSettings';
 
 class UIVectorControlManager {
     private vectorControls: Record<UIVectorType, UIVectorControl>;
@@ -17,7 +18,7 @@ class UIVectorControlManager {
         this.vectorControls = {
             target: UIVectorControlFactory.createVectorControl(UIVectorTypes.Target),
             shooter: shooterControl,
-            projectile: UIVectorControlFactory.createVectorControl(UIVectorTypes.Projectile, 3, 3, [0, 1], shooterControl.getVectorValues()[0]),
+            projectile: UIVectorControlFactory.createVectorControl(UIVectorTypes.Projectile, 3, 3, [0, getProjectileSetting(ProjectileSetting.IndexToMinimize)], shooterControl.getVectorValues()[0]),
         };
 
         this.subscribeToEvents();
