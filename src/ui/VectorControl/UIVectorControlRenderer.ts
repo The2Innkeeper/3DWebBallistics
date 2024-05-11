@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { vectorControlManager } from './UIVectorControlManager';
-import { VectorUpdateEvent } from './events';
+import { UIVectorUpdateEvent } from './events';
 import { eventBus } from '../../communication/EventBus';
 import { UIVectorType } from './types/VectorType';
 import { UIVectorElementFactory } from './UIVectorElementFactory';
@@ -52,17 +52,15 @@ export class UIVectorControlRenderer {
 
         this.container.appendChild(vectorsList);
     }
-    
+
     private renderBottomButtons(): void {
         const addZeroButton = this.createButton('Add Zero Vector', () => {
             this.uiVectorModel.addZeroVector();
             this.render();
-            eventBus.emit(VectorUpdateEvent, new VectorUpdateEvent(this.vectorType, this.uiVectorModel.getVectors()));
         });
         const addRandomButton = this.createButton('Add Random Vector', () => {
             this.uiVectorModel.addRandomVector();
             this.render();
-            eventBus.emit(VectorUpdateEvent, new VectorUpdateEvent(this.vectorType, this.uiVectorModel.getVectors()));
         });
 
         this.container.appendChild(addZeroButton);

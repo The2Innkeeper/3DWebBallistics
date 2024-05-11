@@ -72,10 +72,10 @@ export function computeFactorial(n: number): number {
         return 1;
     }
 
-    let factorial = 2;
+    let factorial = 1;
 
     for (let i = 2; i <= n; i++) {
-        factorial *= i + 1;
+        factorial *= i;
     }
 
     return factorial;
@@ -107,12 +107,14 @@ export function updateScaledDisplacementDerivatives(
     const targetDisplacementDerivatives = computeDisplacementDerivatives(targetPositionDerivatives, shooterPositionDerivatives);
     scaledTargetDerivatives.length = 0;
     scaledTargetDerivatives.push(...computeScaledPositionDerivatives(targetDisplacementDerivatives));
+    console.log('Updated scaledTargetDerivatives:', scaledTargetDerivatives);
     
-    if (projectileDisplacementDerivatives) {
-        const projectileDerivatives = computeDisplacementDerivatives(projectileDisplacementDerivatives, targetDisplacementDerivatives);
-        scaledProjectileDerivatives.length = 0;
-        scaledProjectileDerivatives.push(...computeScaledPositionDerivatives(projectileDerivatives));
-    }
+    if (!projectileDisplacementDerivatives) { return; }
+
+    const projectileDerivatives = computeDisplacementDerivatives(projectileDisplacementDerivatives, targetDisplacementDerivatives);
+    scaledProjectileDerivatives.length = 0;
+    scaledProjectileDerivatives.push(...computeScaledPositionDerivatives(projectileDerivatives));
+    console.log('Updated scaledProjectileDerivatives:', scaledProjectileDerivatives);
 }
 
 export function getScaledShooterTargetDisplacementDerivatives(): THREE.Vector3[] {

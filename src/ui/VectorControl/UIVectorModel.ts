@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createRandomVector } from './utils/VectorUtils';
 import { eventBus } from '../../communication/EventBus';
-import { VectorUpdateEvent } from './events/UIVectorUpdateEvent';
+import { UIVectorUpdateEvent } from './events/UIVectorUpdateEvent';
 import { UIVectorType, UIVectorTypes } from './types/VectorType';
 
 export class UIVectorModel {
@@ -66,6 +66,6 @@ export class UIVectorModel {
     }
 
     private notifyVectorUpdate(): void {
-        eventBus.emit(VectorUpdateEvent, new VectorUpdateEvent(this.vectorType, this.vectors));
+        eventBus.emit(UIVectorUpdateEvent, new UIVectorUpdateEvent(this.vectorType, this.vectors));
     }
 }
