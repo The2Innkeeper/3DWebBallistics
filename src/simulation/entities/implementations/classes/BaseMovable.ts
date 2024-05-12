@@ -5,13 +5,14 @@ import { Entity } from './Entity';
 import { IMovable } from '../../interfaces/IMovable';
 
 export abstract class BaseMovable extends Entity implements IMovable {
-    public lifeTime: number = 0;
+    public lifeTime: number;
     protected scaledPositionDerivatives!: THREE.Vector3[];
     readonly expiryLifeTime: number;
     readonly expiryDistance: number;
 
     constructor(position: THREE.Vector3, radius: number, expiryLifetime: number = 20, expiryDistance: number = 1000) {
         super(position, radius);
+        this.lifeTime = 0;
         this.expiryLifeTime = expiryLifetime;
         this.expiryDistance= expiryDistance;
         this.registerUpdate();
