@@ -1,7 +1,7 @@
-import { VectorType } from './types/VectorType';
+import { UIVectorType } from './types/VectorType';
 
 class UIVectorTypeSelector {
-    constructor(private vectorTypeSelector: HTMLSelectElement, private onVectorTypeChange: (selectedType: VectorType) => void) {
+    constructor(private vectorTypeSelector: HTMLSelectElement, private onVectorTypeChange: (selectedType: UIVectorType) => void) {
         this.initialize();
     }
 
@@ -10,18 +10,18 @@ class UIVectorTypeSelector {
     }
 
     private handleChange(event: Event): void {
-        const selectedType = (event.target as HTMLSelectElement).value as VectorType;
+        const selectedType = (event.target as HTMLSelectElement).value as UIVectorType;
         this.onVectorTypeChange(selectedType);
     }
 
-    public getInitialType(): VectorType {
-        return this.vectorTypeSelector.value as VectorType;
+    public getInitialType(): UIVectorType {
+        return this.vectorTypeSelector.value as UIVectorType;
     }
 }
 
 export function createVectorTypeSelector(
     vectorTypeSelector: HTMLSelectElement,
-    onVectorTypeChange: (selectedType: VectorType) => void
+    onVectorTypeChange: (selectedType: UIVectorType) => void
 ): UIVectorTypeSelector {
     return new UIVectorTypeSelector(vectorTypeSelector, onVectorTypeChange);
 }

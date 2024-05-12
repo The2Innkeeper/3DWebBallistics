@@ -4,7 +4,7 @@ import { eventBus } from "../../../communication/EventBus";
 import { SpawnTargetEvent } from "../../../communication/events/entities/spawning/SpawnTargetEvent";
 import { TargetSpawnedEvent } from "../../../communication/events/entities/spawning/TargetSpawnedEvent";
 import { updateScaledDisplacementDerivatives } from "../../utils/MovementUtils";
-import { scaledShooterTargetDisplacementDerivatives } from "../../components/MovementComponents";
+import { scaledDeltaSTDerivatives } from "../../components/MovementComponents";
 
 // A functional approach to TargetSpawner
 export function createTargetSpawner(scene: THREE.Scene) {
@@ -15,7 +15,7 @@ export function createTargetSpawner(scene: THREE.Scene) {
         updateScaledDisplacementDerivatives(targetDerivatives, shooterDerivatives);
 
         console.log("Spawning target with parameters:", {
-            scaledShooterTargetDisplacementDerivatives,
+            scaledShooterTargetDisplacementDerivatives: scaledDeltaSTDerivatives,
             radius,
             height,
             radialSegments,
@@ -23,7 +23,7 @@ export function createTargetSpawner(scene: THREE.Scene) {
             expiryDistance
         });
 
-        const target = new Target(scaledShooterTargetDisplacementDerivatives, radius, height, radialSegments, expiryLifeTime, expiryDistance);
+        const target = new Target(scaledDeltaSTDerivatives, radius, height, radialSegments, expiryLifeTime, expiryDistance);
         target.addToScene(scene);
         eventBus.emit(TargetSpawnedEvent, new TargetSpawnedEvent(target));
 

@@ -23,8 +23,8 @@ $$\text{scaledProjectileDerivatives}[i] = \frac{1}{i!} \Delta sp[i]$$
 Now for the calculation of the initial velocity vector that minimizes our loss (objective) function, which is $$\frac{\| {\Delta pt}(T)\|^2}{T^2}=\frac{\Delta pt(T) \cdot \Delta pt(T)}{T^2}$$ where $T$ is the time of intersection between the target and projectile and as always $\Delta pt = t - p$.
 
 As in the description of the solution in my CrazyBallistics repository we have
-$$v(T)=\frac{x(T) \cdot x(T)}{T^2}$$ where $x(T)$ is everything else that got isolated to the other side, so $x[i]:=(\text{scaledTargetDerivatives} - \text{scaledProjectileDerivatives})[i]$. The function version of the array is simply the Taylor polynomial evaluation.
+$$s_p^{(k)}(T)=\frac{\Delta s_{pt}(T)}{T^k}$$ where $\Delta s_{pt}(T)$ is everything else that got isolated to the other side, so $\Delta s_{pt}[i]:=(\text{scaledTargetDerivatives} - \text{scaledProjectileDerivatives})[i]$ except for $\Delta s_{pt}[k]:=\text{scaledTargetDerivatives}[k]$. The function version of the array is simply the Taylor polynomial evaluation.
 
-Except that for computation, it is much cheaper to work with scalars compared to vectors. So representing $x(T) \cdot x(T)$ explicitly as a scalar-coefficient Laurent polynomial is better: this is done through a convolution of the 2 arrays to add every term of the same degree together.
+Except that for computation, it is much cheaper to work with scalars compared to vectors. So representing $s(T) \cdot s(T)$ explicitly as a scalar-coefficient Laurent polynomial is better: this is done through a convolution of the 2 arrays to add every term of the same degree together.
 
 Then, to minimize the function, we take the derivative of the Laurent polynomial and set it to 0. To find the roots we shift the degree so that the exponents are all nonnegative, so we can find its zeroes like a regular polynomial.

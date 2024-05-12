@@ -1,5 +1,5 @@
 // MovementComponents.ts
 import * as THREE from 'three';
 
-export const scaledShooterTargetDisplacementDerivatives: THREE.Vector3[] = [];
-export const scaledProjectileShooterDisplacementDerivatives: THREE.Vector3[] = [];
+export const scaledDeltaSTDerivatives: THREE.Vector3[] = [];
+export const scaledDeltaSPDerivatives: THREE.Vector3[] = [];

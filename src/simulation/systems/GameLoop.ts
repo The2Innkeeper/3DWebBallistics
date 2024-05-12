@@ -4,6 +4,7 @@ import { frameUpdateEvent, FrameUpdateEvent } from '../../communication/events/F
 
 export class GameLoop {
   private lastTime: number = 0;
+  private accumulator: number = 0;
 
   start(): void {
     this.lastTime = performance.now();
@@ -11,16 +12,17 @@ export class GameLoop {
   }
 
   private update(): void {
+    const fixedDeltaTime = 1 / 60;
     const currentTime = performance.now();
-    const deltaTime = (currentTime - this.lastTime) / 1000; // Convert to seconds
+    this.accumulator += (currentTime - this.lastTime) / 1000;
     this.lastTime = currentTime;
-    frameUpdateEvent.deltaTime = deltaTime;
 
-    // Emit the frame update event
-    eventBus.emit(FrameUpdateEvent, frameUpdateEvent);
-    // console.log('Frame update event emitted with deltaTime:', frameUpdateEvent.deltaTime);
+    while (this.accumulator >= fixedDeltaTime) {
+      // Emit the frame update event with fixed delta time
+      eventBus.emit(FrameUpdateEvent, fixedDeltaTime);
+      this.accumulator -= fixedDeltaTime;
+    }
 
-    // Schedule the next update
     requestAnimationFrame(this.update.bind(this));
   }
 }

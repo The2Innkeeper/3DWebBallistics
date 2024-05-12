@@ -1,9 +1,9 @@
 import { UIVectorControl } from './UIVectorControl';
-import { VectorType } from './types/VectorType';
+import { UIVectorType } from './types/VectorType';
 import * as THREE from 'three';
 
 export class UIVectorControlFactory {
-    static createVectorControl(type: VectorType, randomCount: number = 3, randomRange: number = 1, readOnlyIndices?: number[], shooterPosition?: THREE.Vector3): UIVectorControl {
+    static createVectorControl(type: UIVectorType, randomCount: number = 3, randomRange: number = 1, readOnlyIndices?: number[], shooterPosition?: THREE.Vector3): UIVectorControl {
         const elementId = `${type}Vectors`;
         const label = `${type.charAt(0).toUpperCase() + type.slice(1)} Vectors`;
 

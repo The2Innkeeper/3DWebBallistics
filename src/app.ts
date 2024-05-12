@@ -5,7 +5,7 @@ import { MenuToggle } from './ui/MenuToggle';
 import { createVectorTypeSelector } from './ui/VectorControl/UIVectorTypeSelector';
 import { WindowResizeHandler } from './ui/WindowResizeHandler';
 import { createRandomTargetSpawner } from './simulation/systems/spawners/RandomTargetSpawner';
-import { VectorType, VectorTypes } from './ui/VectorControl/types/VectorType';
+import { UIVectorType, UIVectorTypes } from './ui/VectorControl/types/VectorType';
 import { eventBus } from './communication/EventBus';
 import { Shooter } from './simulation/entities/implementations/Shooter';
 import { SpawnRandomTargetEvent } from './communication/events/entities/spawning/SpawnRandomTargetEvent';
@@ -17,6 +17,7 @@ import { entityManager } from './simulation/systems/EntityManager';
 import { createProjectileSpawner } from './simulation/systems/spawners/ProjectileSpawner';
 import { vectorControlManager } from './ui/VectorControl/UIVectorControlManager';
 import { computeScaledPositionDerivatives } from './simulation/utils/MovementUtils';
+import { ProjectileSetting, getProjectileSetting } from './simulation/components/projectileSettings';
 
 let globalScene: THREE.Scene;  // Declare a global variable to hold the scene reference
 
@@ -78,13 +79,32 @@ function setupUI() {
         }
 
         const uiVectors = vectorControlManager.getAllVectorValues();
-        eventBus.emit(SpawnProjectileEvent, new SpawnProjectileEvent(uiVectors.target, uiVectors.shooter, uiVectors.projectile, target));
-        console.log(`Projectile spawn event triggered with ${uiVectors.target}, ${uiVectors.shooter}, ${uiVectors.projectile} and target ${ target}.`);
+        eventBus.emit(SpawnProjectileEvent, new SpawnProjectileEvent(
+            uiVectors.target, 
+            uiVectors.shooter, 
+            uiVectors.projectile, 
+            getProjectileSetting(ProjectileSetting.IndexToMinimize), 
+            getProjectileSetting(ProjectileSetting.FallbackIntersectionTime), 
+            target
+        ));
+        const targetDetails = { 
+            target: JSON.stringify(uiVectors.target),
+            shooter: JSON.stringify(uiVectors.shooter),
+            projectile: JSON.stringify(uiVectors.projectile),
+            indexToMinimize: getProjectileSetting(ProjectileSetting.IndexToMinimize),
+            fallbackIntersectionTime: getProjectileSetting(ProjectileSetting.FallbackIntersectionTime),
+            targetObject: target ? {
+                scaledTargetDerivatives: JSON.stringify(target.getScaledPositionDerivatives()),
+                position: JSON.stringify(target.position),
+                lifetime: target.lifeTime
+            } : null,
+        };
+        console.log(`Projectile spawn event triggered with ${JSON.stringify(targetDetails)}`);
     });
 }
 
 // Handle vector type selection change
-function handleVectorTypeChange(selectedType: VectorType): void {
+function handleVectorTypeChange(selectedType: UIVectorType): void {
     vectorControlManager.handleVectorTypeChange(selectedType);
 }
 

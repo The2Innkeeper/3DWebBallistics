@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { vectorControlManager } from './UIVectorControlManager';
-import { VectorUpdateEvent } from './events';
+import { UIVectorUpdateEvent } from './events';
 import { eventBus } from '../../communication/EventBus';
-import { VectorType } from './types/VectorType';
+import { UIVectorType } from './types/VectorType';
 import { UIVectorElementFactory } from './UIVectorElementFactory';
 import { UIVectorModel } from './UIVectorModel';
+import { HelpButton } from './helpButtons/HelpButton';
+import { ProjectileSetting, projectileSettings, setProjectileSetting } from '../../simulation/components/projectileSettings';
 
 export class UIVectorControlRenderer {
 
@@ -12,15 +14,64 @@ export class UIVectorControlRenderer {
         private container: HTMLElement,
         private label: string,
         private uiVectorModel: UIVectorModel,
-        private vectorType: VectorType,
+        private vectorType: UIVectorType,
         private readOnlyIndices?: number[],
     ) {}
 
     public render(): void {
         this.container.innerHTML = `<h3>${this.label} Position Derivatives</h3>`;
+        if (this.vectorType === 'projectile') {
+            this.renderProjectileSpecificControls();
+        }
         this.renderTopButtons();
         this.renderVectorsList();
         this.renderBottomButtons();
+    }
+
+    private renderProjectileSpecificControls(): void {
+        const settingsContainer = document.createElement('div');
+
+        // Create and append the 'Index to Minimize' setting
+        const indexInput = createSettingInput('Index to Minimize:',
+                                                projectileSettings.indexToMinimize,
+                                                ProjectileSetting.IndexToMinimize,
+                                                "The index of the vector whose magnitude is the objective function to minimize.");
+        settingsContainer.appendChild(indexInput);
+
+        // Create and append the 'Fallback Intersection Time' setting
+        const timeInput = createSettingInput('Fallback Intersection Time (seconds):',
+                                                projectileSettings.fallbackIntersectionTime,
+                                                ProjectileSetting.FallbackIntersectionTime,
+                                                "Sometimes, there are no solutions to minimize the norm of the initial movement vector. For example, if the target only moves away from the shooter, it will attempt to fire towards infinity parallel to it; because if it is 0.001% faster than the target, it will in theory eventually reach it, but this is unreasonable in practice."
+                                                +"\n\n"+
+                                                "The fallback intersection time parameter, in seconds, is used in these cases. Instead of minimizing the vector magnitude, it will simply calculate the required initial value to make the projectile hit the target after this amount of time has passed since the firing of the projectile.");
+        settingsContainer.appendChild(timeInput);
+
+        this.container.appendChild(settingsContainer);
+        
+        function createSettingInput(labelText: string, value: number, settingKey: keyof typeof projectileSettings, helpMessage: string): HTMLElement {
+            const label = document.createElement('label');
+            label.textContent = labelText;
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = value.toString();
+            input.step = '0.1';
+            input.addEventListener('change', (e) => {
+                const newValue = parseFloat((e.target as HTMLInputElement).value);
+                setProjectileSetting(settingKey, newValue);
+                console.log('Setting ', settingKey, 'to ', newValue);
+            });
+        
+            // Create help button and pass the label as the container
+            new HelpButton(label, helpMessage); // The HelpButton appends itself to the label
+
+            // Combine label and input into a container
+            const inputContainer = document.createElement('div');
+            inputContainer.appendChild(label);
+            inputContainer.appendChild(input);
+        
+            return inputContainer;
+        }
     }
 
     private renderTopButtons(): void {
@@ -44,6 +95,7 @@ export class UIVectorControlRenderer {
             const vectorElement = UIVectorElementFactory.createVectorElement(
                 vector,
                 index,
+                this.vectorType,
                 this.readOnlyIndices,
             );
             vectorsList.appendChild(vectorElement);
@@ -56,12 +108,10 @@ export class UIVectorControlRenderer {
         const addZeroButton = this.createButton('Add Zero Vector', () => {
             this.uiVectorModel.addZeroVector();
             this.render();
-            eventBus.emit(VectorUpdateEvent, new VectorUpdateEvent(this.vectorType, this.uiVectorModel.getVectors()));
         });
         const addRandomButton = this.createButton('Add Random Vector', () => {
             this.uiVectorModel.addRandomVector();
             this.render();
-            eventBus.emit(VectorUpdateEvent, new VectorUpdateEvent(this.vectorType, this.uiVectorModel.getVectors()));
         });
 
         this.container.appendChild(addZeroButton);
@@ -73,19 +123,5 @@ export class UIVectorControlRenderer {
         button.textContent = label;
         button.onclick = onClick;
         return button;
-    }
-
-    private makeReadOnly(index: number): void {
-        const vectorElements = this.container.getElementsByClassName('vector-controls');
-        if (vectorElements[index]) {
-            const inputs = vectorElements[index].getElementsByTagName('input');
-            for (let input of inputs) {
-                input.readOnly = true;
-            }
-            const buttons = vectorElements[index].getElementsByTagName('button');
-            for (let button of buttons) {
-                button.disabled = true;
-            }
-        }
     }
 }

@@ -20,14 +20,23 @@ export class Shooter extends Entity {
         const DARK_GRAY = 0x555555;
         const material = new THREE.MeshPhongMaterial({ color: DARK_GRAY });
         const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.set(0, this.height / 2 - this.radius, 0);
+        // Shift the geometry so the pivot point is at the base of the cylinder
+        mesh.geometry.translate(0, this.height / 4, 0);
+        mesh.position.copy(this.position);
         return mesh;
     }
 
     orientToProjectileVelocity(event: ProjectileSpawnedEvent): void {
-        const direction = event.projectile.getScaledPositionDerivatives()[1].clone().normalize();
-        this.mesh.lookAt(direction); // This makes the side face the projectile
-        this.mesh.rotation.x -= Math.PI / 2; // But we want the top face like a cannon
+        const direction = event.projectile.evaluatePositionAt(0.125).sub(this.position).normalize();
+
+        // Assuming the cannon's "barrel" should point along the positive Y-axis of the mesh
+        // Calculate the quaternion required to rotate the Z-axis to point in the direction
+        let axis = new THREE.Vector3(0, 0, 1); // Mesh default front is Z-axis
+        let quaternion = new THREE.Quaternion().setFromUnitVectors(axis, direction);
+        this.mesh.quaternion.copy(quaternion);
+
+        // Correct rotation to align "barrel" along positive Y-axis
+        this.mesh.rotateX(Math.PI / 2);
     }
     
     registerUpdate() {

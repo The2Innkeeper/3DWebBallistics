@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import { createRandomVector } from './utils/VectorUtils';
 import { eventBus } from '../../communication/EventBus';
-import { VectorUpdateEvent } from './events/VectorUpdateEvent';
-import { VectorType, VectorTypes } from './types/VectorType';
+import { UIVectorUpdateEvent } from './events/UIVectorUpdateEvent';
+import { UIVectorType, UIVectorTypes } from './types/VectorType';
 
 export class UIVectorModel {
     private vectors: THREE.Vector3[] = [];
 
     constructor(
-        private vectorType: VectorType, 
+        private vectorType: UIVectorType, 
         private randomCount: number = 3,
         private randomRange: number = 1, 
         private shooterPosition?: THREE.Vector3
@@ -18,7 +18,7 @@ export class UIVectorModel {
 
     private initializeVectors(): void {
         for (let i = 0; i < this.randomCount; i++) {
-            if (this.vectorType === VectorTypes.Projectile && this.shooterPosition && i === 0) {
+            if (this.vectorType === UIVectorTypes.Projectile && this.shooterPosition && i === 0) {
                 // Directly assign the reference for the first vector of the projectile
                 this.vectors[i] = this.shooterPosition;
             } else {
@@ -57,8 +57,8 @@ export class UIVectorModel {
     public randomizeAllVectors(): void {
         this.vectors.forEach((vector, index) => {
             vector.copy(createRandomVector(-this.randomRange, this.randomRange));
-            this.notifyVectorUpdate();
         });
+        this.notifyVectorUpdate();
     }
 
     public clearAllVectors(): void {
@@ -66,6 +66,6 @@ export class UIVectorModel {
     }
 
     private notifyVectorUpdate(): void {
-        eventBus.emit(VectorUpdateEvent, new VectorUpdateEvent(this.vectorType, this.vectors));
+        eventBus.emit(UIVectorUpdateEvent, new UIVectorUpdateEvent(this.vectorType, this.vectors));
     }
 }

@@ -8,7 +8,7 @@ export class Target extends BaseMovable {
     radialSegments: number;
 
     constructor(
-        scaledPositionDerivatives: readonly THREE.Vector3[],
+        scaledPositionDerivatives: THREE.Vector3[],
         radius: number = 0.875, 
         height: number = 0.25, 
         radialSegments: number = 32, 
@@ -17,7 +17,7 @@ export class Target extends BaseMovable {
             ) {
         let position = scaledPositionDerivatives[0].clone();
         super(position, radius, expiryLifeTime, expiryDistance);
-        this.scaledPositionDerivatives = scaledPositionDerivatives;
+        this.scaledPositionDerivatives = scaledPositionDerivatives.map(vector => vector.clone());
         this.height = height;
         this.radialSegments = radialSegments;
         this.mesh = this.createMesh();

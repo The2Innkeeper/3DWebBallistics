@@ -1,9 +1,22 @@
 import * as THREE from 'three';
+import { UIVectorType } from './types/VectorType';
+import { HelpMessageService } from './helpButtons/HelpMessageService';
+import { HelpButton } from './helpButtons/HelpButton';
+import { UIVectorUpdateEvent } from './events';
+import { eventBus } from '../../communication/EventBus';
 
 export class UIVectorElementFactory {
+    public static createHelpButton(vectorElement: HTMLElement, vectorType: UIVectorType, index: number, readOnly: boolean, removeDisabled: boolean): void {
+        const helpMessage = HelpMessageService.getHelpMessage(vectorType, index, readOnly, removeDisabled);
+        if (helpMessage) {
+            new HelpButton(vectorElement, helpMessage);
+        }
+    }
+
     public static createVectorElement(
         vector: THREE.Vector3,
         index: number,
+        vectorType: UIVectorType,
         readonlyIndices?: number[],
     ): HTMLDivElement {
         const vectorElement = document.createElement('div');
@@ -20,6 +33,8 @@ export class UIVectorElementFactory {
             <input type="number" value="${vector.z.toFixed(2)}" step="0.01" data-index="${index}" data-component="z" ${readOnly ? 'readonly' : ''}>
             <button class="${buttonClass}" data-index="${index}"${buttonDisabledAttribute}>Remove</button>
         `;
+
+        UIVectorElementFactory.createHelpButton(vectorElement, vectorType, index, readOnly, removeDisabled);
 
         return vectorElement;
     }
