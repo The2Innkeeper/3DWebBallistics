@@ -10,7 +10,7 @@ import { IMovable } from '../interfaces/IMovable';
 export class Projectile extends BaseMovable {
     target: IMovable;
 
-    constructor(scaledPositionDerivatives: readonly THREE.Vector3[],
+    constructor(scaledPositionDerivatives: THREE.Vector3[],
                 target: IMovable,
                 radius: number,
                 expiryLifetime?: number,

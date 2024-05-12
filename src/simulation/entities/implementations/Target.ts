@@ -8,7 +8,7 @@ export class Target extends BaseMovable {
     radialSegments: number;
 
     constructor(
-        scaledPositionDerivatives: readonly THREE.Vector3[],
+        scaledPositionDerivatives: THREE.Vector3[],
         radius: number = 0.875, 
         height: number = 0.25, 
         radialSegments: number = 32, 

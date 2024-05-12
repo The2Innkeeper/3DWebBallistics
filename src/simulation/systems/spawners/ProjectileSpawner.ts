@@ -8,6 +8,7 @@ import { updateScaledDisplacementDerivatives } from "../../utils/MovementUtils";
 import { scaledDeltaSPDerivatives, scaledDeltaSTDerivatives } from "../../components/MovementComponents";
 import { PhysicsSolver } from "../../utils/PhysicsSolver";
 import { getProjectileSetting } from "../../components/projectileSettings";
+import { vectorTaylorShift } from "../../utils/vectorTaylorShift";
 
 // A functional approach to ProjectileSpawner
 export function createProjectileSpawner(scene: THREE.Scene) {
@@ -22,12 +23,15 @@ export function createProjectileSpawner(scene: THREE.Scene) {
         // Update the backend vectors
         updateScaledDisplacementDerivatives(targetDerivatives, shooterDerivatives, projectileDerivatives);
 
+        const shiftedTargetVectors = vectorTaylorShift(target.getScaledPositionDerivatives(), target.lifeTime);
+        target.setScaledPositionDerivatives(shiftedTargetVectors);
+        target.lifeTime = 0;
+
         // Spawn the projectile based on whether a minimum is possible
         const scaledProjectileDerivatives = [...scaledDeltaSPDerivatives];
         const updatedScaledVelocityVector = PhysicsSolver.calculateInitialDerivativeWithFallback(
-                                                target.getScaledPositionDerivatives(),
+                                                shiftedTargetVectors,
                                                 scaledDeltaSPDerivatives,
-                                                target.lifeTime,
                                                 indexToMinimize,
                                                 getProjectileSetting('fallbackIntersectionTime'),
                                                 expiryLifeTime

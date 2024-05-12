@@ -6,7 +6,7 @@ import { IMovable } from '../../interfaces/IMovable';
 
 export abstract class BaseMovable extends Entity implements IMovable {
     public lifeTime: number = 0;
-    protected scaledPositionDerivatives!: readonly THREE.Vector3[];
+    protected scaledPositionDerivatives!: THREE.Vector3[];
     readonly expiryLifeTime: number;
     readonly expiryDistance: number;
 
@@ -24,8 +24,7 @@ export abstract class BaseMovable extends Entity implements IMovable {
     abstract updatePosition(deltaTime: number): void;
     
 
-    private onFrameUpdate(event: FrameUpdateEvent) {
-        const deltaTime = event.deltaTime;
+    private onFrameUpdate(deltaTime: number) {
         this.updatePosition(deltaTime);
         this.lifeTime += deltaTime;
         this.updateMesh();
@@ -42,6 +41,10 @@ export abstract class BaseMovable extends Entity implements IMovable {
             position.multiplyScalar(time).add(this.scaledPositionDerivatives[i]);
         }
         return position;
+    }
+
+    public setScaledPositionDerivatives(positionDerivatives: THREE.Vector3[]) {
+        this.scaledPositionDerivatives = positionDerivatives;
     }
 
     public getScaledPositionDerivatives(): THREE.Vector3[] {

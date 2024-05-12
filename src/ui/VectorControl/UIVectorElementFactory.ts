@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { UIVectorType } from './types/VectorType';
 import { HelpMessageService } from './helpButtons/HelpMessageService';
 import { HelpButton } from './helpButtons/HelpButton';
+import { UIVectorUpdateEvent } from './events';
+import { eventBus } from '../../communication/EventBus';
+import { UIVectorRemoveEvent as UIVectorRemoveEvent } from './events/UIVectorRemoveEvent';
 
 export class UIVectorElementFactory {
     public static createHelpButton(vectorElement: HTMLElement, vectorType: UIVectorType, index: number, readOnly: boolean, removeDisabled: boolean): void {

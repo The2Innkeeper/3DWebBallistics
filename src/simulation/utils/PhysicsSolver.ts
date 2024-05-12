@@ -1,8 +1,8 @@
-import { Vector3} from 'three';
+import { Vector3 } from 'three';
 import { Polynomial, evaluatePolynomial, findStrictlyPositiveRoots, hasStrictlyPositiveRoots } from 'polynomial-real-root-finding';
-import { computeDisplacementDerivatives, computeFactorial } from './MovementUtils';
+import { computeDisplacementDerivatives } from './MovementUtils';
 import { LaurentPolynomial } from './LaurentPolynomial';
-
+import { vectorTaylorShift } from './vectorTaylorShift';
 
 export class PhysicsSolver {
     
@@ -78,58 +78,16 @@ export class PhysicsSolver {
         return minimumInput;
     }
 
-    /**
-     * Applies a Taylor shift transformation to a vector coefficient polynomial.
-     * @param vectors Array of THREE.Vector3 objects to transform.
-     * @param shift THREE.Vector3 representing the shift to apply.
-     * @returns The vectors coefficients of the polynomial s(T + shift)
-     */
-    static vectorTaylorShift(vectors: Vector3[], shift: number): Vector3[] {
-        const shiftedVectors = vectors.map(v => v.clone()); // Clone array of vectors
-        const powers = new Array(vectors.length);
-        const binomials = new Array(vectors.length);
-
-        // Pre-compute powers of shift
-        for (let n = 1; n < vectors.length; n++) {
-            powers[n] = Math.pow(shift, n);
-        }
-
-        // Pre-compute binomial coefficients
-        for (let i = 0; i < vectors.length; i++) {
-            binomials[i] = new Array(i + 1);
-            for (let j = 0; j <= i; j++) {
-                binomials[i][j] = binomial(i, j);
-            }
-        }
-
-        // Apply the Taylor shift using pre-computed values
-        for (let i = 1; i < vectors.length; i++) {
-            for (let j = 0; j < i; j++) {
-                const scale = binomials[i][j] * powers[i - j];
-                shiftedVectors[j].x += vectors[i].x * scale;
-                shiftedVectors[j].y += vectors[i].y * scale;
-                shiftedVectors[j].z += vectors[i].z * scale;
-            }
-        }
-
-        return shiftedVectors;
-    }
-
     static calculateInitialDerivativeWithFallback(
-        scaledDeltaSTVectors: Vector3[],
+        shiftedTargetVectors: Vector3[],
         scaledDeltaSPVectors: Vector3[],
-        currentTargetLifetime: number,
         indexToMinimize: number,
         fallbackIntersectionTime: number,
         projectileExpiryLifetime: number
     ): Vector3 {
         if (fallbackIntersectionTime > projectileExpiryLifetime) {
-            fallbackIntersectionTime = projectileExpiryLifetime - 1 > 0 ? projectileExpiryLifetime - 1 : 1;
+            fallbackIntersectionTime = projectileExpiryLifetime - 2 > 0 ? projectileExpiryLifetime - 2 : 2;
         }
-
-        // Account for the time between the target spawn and projectile spawn
-        const shiftedTargetVectors = PhysicsSolver.vectorTaylorShift(scaledDeltaSTVectors, currentTargetLifetime);
-
         // Compute the relative vectors (deltaPT := T - P) by taking the difference between the projectile's derivatives and the target's derivatives.
         const scaledRelativeVectors = computeDisplacementDerivatives(scaledDeltaSPVectors, shiftedTargetVectors);
 
@@ -150,7 +108,7 @@ export class PhysicsSolver {
         }
         
         // Find all roots of the derivative polynomial
-        const criticalTimes = findStrictlyPositiveRoots(derivativeNumeratorPolynomial, 1e-6);
+        const criticalTimes = findStrictlyPositiveRoots(derivativeNumeratorPolynomial, 1e-5);
 
         if (criticalTimes.length === 0) {
             // If no roots exist, use the provided fallback intersection time
@@ -162,6 +120,7 @@ export class PhysicsSolver {
             this.derivativeSquareMagnitude(scaledRelativeVectors, indexToMinimize),
             criticalTimes
         );
+        console.log('Optimum exists at', optimalTimeToTarget);
 
         return this.calculateInitialDerivative(
             scaledRelativeVectors,
@@ -172,9 +131,9 @@ export class PhysicsSolver {
 
     /**
      * Calculate the initial derivative based on scaled relative vectors, time to target, and index to minimize.
-     * d^(k) s(T) = s / T^k
+     * d^(k) s(T) = s_pt / T^k
      *
-     * @param {Vector3[]} scaledRelativeVectors - Array of scaled relative vectors
+     * @param {Vector3[]} scaledRelativeVectors - Target - Projectile
      * @param {number} timeToTarget - The time of intersection between the target and projectile
      * @param {number} indexToMinimize - The index to minimize
      * @return {Vector3} The calculated initial derivative

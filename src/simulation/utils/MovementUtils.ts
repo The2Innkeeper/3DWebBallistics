@@ -6,36 +6,36 @@ import { scaledDeltaSTDerivatives, scaledDeltaSPDerivatives } from '../component
  * Computes the displacement derivatives between from the first entity (tail) to the second entity (tip).
  * ABdisplacement[i] = B[i] - A[i]
  *
- * @param {THREE.Vector3[]} tailPositionDerivatives - The first entity's position derivatives.
- * @param {THREE.Vector3[]} tipPositionDerivatives - The second entity's position derivatives.
+ * @param {THREE.Vector3[]} tipPositionDerivatives - The first entity's position derivatives.
+ * @param {THREE.Vector3[]} tailPositionDerivatives - The second entity's position derivatives.
  * @return {THREE.Vector3[]} The computed displacement derivatives = tip - tail.
  */
 export function computeDisplacementDerivatives(
     tailPositionDerivatives: THREE.Vector3[],
     tipPositionDerivatives: THREE.Vector3[]
 ): THREE.Vector3[] {
-    const minLength = Math.min(tailPositionDerivatives.length, tipPositionDerivatives.length);
-    const maxLength = Math.max(tailPositionDerivatives.length, tipPositionDerivatives.length);
+    const minLength = Math.min(tipPositionDerivatives.length, tailPositionDerivatives.length);
+    const maxLength = Math.max(tipPositionDerivatives.length, tailPositionDerivatives.length);
     const displacementDerivatives: THREE.Vector3[] = new Array(maxLength).fill(null).map(() => new THREE.Vector3(0, 0, 0));
 
     for (let i = 0; i < minLength; i++) {
-        if (tailPositionDerivatives[i] && tipPositionDerivatives[i]) {
-            displacementDerivatives[i].copy(tailPositionDerivatives[i]).sub(tipPositionDerivatives[i]);
+        if (tipPositionDerivatives[i] && tailPositionDerivatives[i]) {
+            displacementDerivatives[i].copy(tipPositionDerivatives[i]).sub(tailPositionDerivatives[i]);
         } else {
             console.error(`Undefined vector found at index: ${i}, `
-                        + `tail:, ${JSON.stringify(tailPositionDerivatives[i])}, `
-                        + `tip: ${JSON.stringify(tipPositionDerivatives[i])}, `
-                        + `tailPositionDerivatives: ${JSON.stringify(tailPositionDerivatives)}, `
-                        + `tipPositionDerivatives: ${JSON.stringify(tipPositionDerivatives)}`
+                        + `tail:, ${JSON.stringify(tipPositionDerivatives[i])}, `
+                        + `tip: ${JSON.stringify(tailPositionDerivatives[i])}, `
+                        + `tailPositionDerivatives: ${JSON.stringify(tipPositionDerivatives)}, `
+                        + `tipPositionDerivatives: ${JSON.stringify(tailPositionDerivatives)}`
                     );
         }
     }
 
     for (let i = minLength; i < maxLength; i++) {
-        if (i < tailPositionDerivatives.length && tailPositionDerivatives[i]) {
-            displacementDerivatives[i].copy(tailPositionDerivatives[i]);
-        } else if (i < tipPositionDerivatives.length && tipPositionDerivatives[i]) {
-            displacementDerivatives[i].copy(tipPositionDerivatives[i]).negate();
+        if (i < tipPositionDerivatives.length && tipPositionDerivatives[i]) {
+            displacementDerivatives[i].copy(tipPositionDerivatives[i]);
+        } else if (i < tailPositionDerivatives.length && tailPositionDerivatives[i]) {
+            displacementDerivatives[i].copy(tailPositionDerivatives[i]).negate();
         } else {
             console.error('Undefined vector found at index', i);
         }

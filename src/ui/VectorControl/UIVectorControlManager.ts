@@ -2,7 +2,7 @@ import { UIVectorType, UIVectorTypes } from './types/VectorType';
 import { UIVectorControl } from './UIVectorControl';
 import { UIVectorControlFactory } from './UIVectorControlFactory';
 import { eventBus } from '../../communication/EventBus';
-import { UIVectorUpdateEvent as UIVectorUpdateEvent } from './events/UIVectorUpdateEvent';
+import { UIVectorUpdateEvent } from './events/UIVectorUpdateEvent';
 import { updateScaledDisplacementDerivatives } from '../../simulation/utils/MovementUtils';
 import * as THREE from 'three';
 import { ProjectileSetting, getProjectileSetting } from '../../simulation/components/projectileSettings';

@@ -59,6 +59,7 @@ export class UIVectorControlRenderer {
             input.addEventListener('change', (e) => {
                 const newValue = parseFloat((e.target as HTMLInputElement).value);
                 setProjectileSetting(settingKey, newValue);
+                console.log('Setting ', settingKey, 'to ', newValue);
             });
         
             // Create help button and pass the label as the container
@@ -72,7 +73,6 @@ export class UIVectorControlRenderer {
             return inputContainer;
         }
     }
-
 
     private renderTopButtons(): void {
         const clearAllButton = this.createButton('Clear All Vectors', () => {

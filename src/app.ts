@@ -87,7 +87,19 @@ function setupUI() {
             getProjectileSetting(ProjectileSetting.FallbackIntersectionTime), 
             target
         ));
-        console.log(`Projectile spawn event triggered with ${uiVectors.target}, ${uiVectors.shooter}, ${uiVectors.projectile}, indexToMinimize ${getProjectileSetting(ProjectileSetting.IndexToMinimize)}, fallbackIntersectionTime ${getProjectileSetting(ProjectileSetting.FallbackIntersectionTime)} and target ${ target}.`);
+        const targetDetails = { 
+            target: JSON.stringify(uiVectors.target),
+            shooter: JSON.stringify(uiVectors.shooter),
+            projectile: JSON.stringify(uiVectors.projectile),
+            indexToMinimize: getProjectileSetting(ProjectileSetting.IndexToMinimize),
+            fallbackIntersectionTime: getProjectileSetting(ProjectileSetting.FallbackIntersectionTime),
+            targetObject: target ? {
+                scaledTargetDerivatives: JSON.stringify(target.getScaledPositionDerivatives()),
+                position: JSON.stringify(target.position),
+                lifetime: target.lifeTime
+            } : null,
+        };
+        console.log(`Projectile spawn event triggered with ${JSON.stringify(targetDetails)}`);
     });
 }
 
