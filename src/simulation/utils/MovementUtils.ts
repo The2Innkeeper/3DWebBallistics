@@ -92,6 +92,7 @@ export function updateScaledDisplacementDerivatives(
     targetPositionDerivatives: THREE.Vector3[],
     shooterPositionDerivatives: THREE.Vector3[],
     projectilePositionDerivatives?: THREE.Vector3[],
+    indexToMinimize?: number
 ): void {
     function validateVectors(vectors: THREE.Vector3[], vectorType: string): void {
         vectors.forEach((vec, index) => {
@@ -114,6 +115,7 @@ export function updateScaledDisplacementDerivatives(
     const projectileDerivatives = computeDisplacementDerivatives(shooterPositionDerivatives, projectilePositionDerivatives);
     scaledDeltaSPDerivatives.length = 0;
     scaledDeltaSPDerivatives.push(...computeScaledPositionDerivatives(projectileDerivatives));
+    if (indexToMinimize) scaledDeltaSPDerivatives[indexToMinimize].set(0, 0, 0);
     console.log('Updated scaledProjectileDerivatives:', scaledDeltaSPDerivatives);
 }
 

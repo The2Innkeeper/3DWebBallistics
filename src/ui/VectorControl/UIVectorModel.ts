@@ -3,7 +3,6 @@ import { createRandomVector } from './utils/VectorUtils';
 import { eventBus } from '../../communication/EventBus';
 import { UIVectorUpdateEvent } from './events/UIVectorUpdateEvent';
 import { UIVectorType, UIVectorTypes } from './types/VectorType';
-import { UIVectorRemoveEvent } from './events/UIVectorRemoveEvent';
 
 export class UIVectorModel {
     private vectors: THREE.Vector3[] = [];
@@ -15,7 +14,6 @@ export class UIVectorModel {
         private shooterPosition?: THREE.Vector3
     ) {
         this.initializeVectors();
-        eventBus.subscribe(UIVectorRemoveEvent, this.removeVector.bind(this));
     }
 
     private initializeVectors(): void {

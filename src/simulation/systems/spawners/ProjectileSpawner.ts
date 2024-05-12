@@ -21,14 +21,13 @@ export function createProjectileSpawner(scene: THREE.Scene) {
         }
 
         // Update the backend vectors
-        updateScaledDisplacementDerivatives(targetDerivatives, shooterDerivatives, projectileDerivatives);
+        updateScaledDisplacementDerivatives(targetDerivatives, shooterDerivatives, projectileDerivatives, indexToMinimize);
 
         const shiftedTargetVectors = vectorTaylorShift(target.getScaledPositionDerivatives(), target.lifeTime);
         target.setScaledPositionDerivatives(shiftedTargetVectors);
         target.lifeTime = 0;
 
         // Spawn the projectile based on whether a minimum is possible
-        const scaledProjectileDerivatives = [...scaledDeltaSPDerivatives];
         const updatedScaledVelocityVector = PhysicsSolver.calculateInitialDerivativeWithFallback(
                                                 shiftedTargetVectors,
                                                 scaledDeltaSPDerivatives,
@@ -36,11 +35,11 @@ export function createProjectileSpawner(scene: THREE.Scene) {
                                                 getProjectileSetting('fallbackIntersectionTime'),
                                                 expiryLifeTime
                                             );
-        scaledProjectileDerivatives[indexToMinimize] = updatedScaledVelocityVector;
-        console.log("New initial velocity:", scaledProjectileDerivatives[indexToMinimize]);
+        scaledDeltaSPDerivatives[indexToMinimize] = updatedScaledVelocityVector;
+        console.log("New initial velocity:", scaledDeltaSPDerivatives[indexToMinimize]);
 
         console.log("Spawning projectile with parameters:", {
-            scaledProjectileDerivatives,
+            scaledProjectileDerivatives: scaledDeltaSPDerivatives,
             target,
             radius,
             expiryLifeTime,
@@ -48,7 +47,7 @@ export function createProjectileSpawner(scene: THREE.Scene) {
         });
 
         const projectile = new Projectile(
-            scaledProjectileDerivatives,
+            scaledDeltaSPDerivatives,
             target,
             radius,
             expiryLifeTime,

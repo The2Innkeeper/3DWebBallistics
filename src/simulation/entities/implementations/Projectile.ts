@@ -18,7 +18,7 @@ export class Projectile extends BaseMovable {
             ) {
         let position = scaledPositionDerivatives[0].clone();
         super(position, radius, expiryLifetime, expiryDistance);
-        this.scaledPositionDerivatives = scaledPositionDerivatives;
+        this.scaledPositionDerivatives = scaledPositionDerivatives.map(vector => vector.clone());
         this.target = target;
         this.mesh = this.createMesh();
     }
