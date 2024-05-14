@@ -10,6 +10,7 @@ export class ExplosionHandler {
     private audioLoader: THREE.AudioLoader;
     private listener: THREE.AudioListener;
     private volume: number; // Volume parameter
+    private baseUrl: string; // Base URL for assets
 
     constructor(scene: THREE.Scene, camera: THREE.Camera) {
         this.scene = scene;
@@ -21,6 +22,15 @@ export class ExplosionHandler {
         this.listener = new THREE.AudioListener();
         this.volume = 1.0; // Default volume
         this.camera.add(this.listener); // Add listener to the camera
+
+        // Determine the base URL for assets
+        this.baseUrl = this.getBaseUrl();
+    }
+
+    private getBaseUrl(): string {
+        const url = window.location.href;
+        const baseUrl = url.substring(0, url.lastIndexOf('/') + 1);
+        return baseUrl;
     }
 
     private initParticleSystem(): THREE.Points {
@@ -108,7 +118,8 @@ export class ExplosionHandler {
 
     private playExplosionSound(position: THREE.Vector3): void {
         const sound = new THREE.PositionalAudio(this.listener);
-        this.audioLoader.load('assets/sounds/mixkit-bomb-distant-explotion-2772.mp3', (buffer) => {
+        const soundPath = `${this.baseUrl}assets/sounds/mixkit-bomb-distant-explotion-2772.mp3`;
+        this.audioLoader.load(soundPath, (buffer) => {
             sound.setBuffer(buffer);
             sound.setRefDistance(20);
             sound.setVolume(this.volume); // Use the volume parameter
