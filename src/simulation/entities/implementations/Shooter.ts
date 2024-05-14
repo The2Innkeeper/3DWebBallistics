@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { eventBus } from '../../../communication/EventBus';
 import { ProjectileSpawnedEvent } from '../../../communication/events/entities/spawning/ProjectileSpawnedEvent';
-import { Entity } from './classes/Entity';
+import { Entity } from './Entity';
 
 export class Shooter extends Entity {
     height: number;

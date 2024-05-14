@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { eventBus } from '../../../../communication/EventBus';
-import { FrameUpdateEvent } from '../../../../communication/events/FrameUpdateEvent';
+import { eventBus } from '../../../communication/EventBus';
+import { FrameUpdateEvent } from '../../../communication/events/FrameUpdateEvent';
 import { Entity } from './Entity';
-import { IMovable } from '../../interfaces/IMovable';
+import { IMovable } from '../interfaces/IMovable';
 
 export abstract class BaseMovable extends Entity implements IMovable {
     public lifeTime: number;

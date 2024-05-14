@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { BaseMovable } from '../../../../simulation/entities/implementations/classes/BaseMovable';
+import { BaseMovable } from '../../../../simulation/entities/implementations/BaseMovable';
 
 export class SpawnProjectileEvent {
     constructor(

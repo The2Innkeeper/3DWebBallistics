@@ -2,7 +2,7 @@ import { eventBus } from '../../communication/EventBus';
 import { ProjectileExpiredEvent } from '../../communication/events/entities/expiry/ProjectileExpiredEvent';
 import { TargetExpiredEvent } from '../../communication/events/entities/expiry/TargetExpiredEvent';
 import { Projectile } from '../entities/implementations/Projectile';
-import { BaseMovable } from '../entities/implementations/classes/BaseMovable';
+import { BaseMovable } from '../entities/implementations/BaseMovable';
 import { TargetSpawnedEvent } from '../../communication/events/entities/spawning/TargetSpawnedEvent';
 import { ProjectileSpawnedEvent } from '../../communication/events/entities/spawning/ProjectileSpawnedEvent';
 import { CollisionEvent } from '../../communication/events/entities/CollisionEvent';
@@ -39,8 +39,8 @@ export class EntityManager {
         target.dispose();
         this.targetSpawnOrder.splice(index, 1);
         if (index < this.projectileSpawnOrder.length) {
-            let projectile = this.projectileSpawnOrder[index];
-            projectile.dispose();
+            this.projectileSpawnOrder[index].dispose();
+            this.projectileSpawnOrder.splice(index, 1);
         }
     }
 
@@ -55,8 +55,8 @@ export class EntityManager {
         projectile.dispose();
         this.projectileSpawnOrder.splice(index, 1);
         if (index < this.targetSpawnOrder.length) {
-            let target = this.targetSpawnOrder[index];
-            target.dispose();
+            this.targetSpawnOrder[index].dispose();
+            this.targetSpawnOrder.splice(index, 1);
         }
     }
 

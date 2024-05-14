@@ -4,18 +4,23 @@ import { CollisionEvent } from '../../../communication/events/entities/Collision
 
 export class ExplosionHandler {
     private scene: THREE.Scene;
+    private camera: THREE.Camera;
     private particleSystem: THREE.Points;
     private particleLife: number[];
     private audioLoader: THREE.AudioLoader;
     private listener: THREE.AudioListener;
+    private volume: number; // Volume parameter
 
-    constructor(scene: THREE.Scene) {
+    constructor(scene: THREE.Scene, camera: THREE.Camera) {
         this.scene = scene;
+        this.camera = camera;
         eventBus.subscribe(CollisionEvent, this.handleExplosion.bind(this));
         this.particleSystem = this.initParticleSystem();
         this.particleLife = new Array(1000).fill(0);
         this.audioLoader = new THREE.AudioLoader();
         this.listener = new THREE.AudioListener();
+        this.volume = 1.0; // Default volume
+        this.camera.add(this.listener); // Add listener to the camera
     }
 
     private initParticleSystem(): THREE.Points {
@@ -50,7 +55,6 @@ export class ExplosionHandler {
     private handleExplosion(event: CollisionEvent): void {
         const projectile = event.projectile;
         const position = projectile.position;
-        console.log('Explosion at:', JSON.stringify(position));
 
         this.triggerExplosion(position);
         this.playExplosionSound(position);
@@ -104,10 +108,10 @@ export class ExplosionHandler {
 
     private playExplosionSound(position: THREE.Vector3): void {
         const sound = new THREE.PositionalAudio(this.listener);
-        this.audioLoader.load('../../../../assets/sounds/mixkit-bomb-distant-explotion-2772.mp3', function(buffer) {
+        this.audioLoader.load('../../../../assets/sounds/mixkit-bomb-distant-explotion-2772.mp3', (buffer) => {
             sound.setBuffer(buffer);
             sound.setRefDistance(20);
-            sound.setVolume(1.0);
+            sound.setVolume(this.volume); // Use the volume parameter
             sound.play();
         });
 
@@ -120,5 +124,18 @@ export class ExplosionHandler {
         sound.onEnded = () => {
             this.scene.remove(soundObject);
         };
+
+        // Adjust volume based on distance from the camera
+        const cameraPosition = new THREE.Vector3();
+        this.camera.getWorldPosition(cameraPosition);
+        const distance = cameraPosition.distanceTo(position);
+        const maxDistance = 100; // Maximum distance for volume attenuation
+        const adjustedVolume = Math.max(0, this.volume * (1 - distance / maxDistance));
+        sound.setVolume(adjustedVolume);
+    }
+
+    // Method to update the volume
+    public setVolume(newVolume: number): void {
+        this.volume = newVolume;
     }
 }

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { IRenderable } from '../../interfaces/IRenderable';
-import { eventBus } from '../../../../communication/EventBus';
+import { IRenderable } from '../interfaces/IRenderable';
+import { eventBus } from '../../../communication/EventBus';
 export abstract class Entity implements IRenderable {
     public mesh!: THREE.Mesh;
     position: THREE.Vector3;

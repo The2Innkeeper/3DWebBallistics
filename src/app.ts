@@ -1,4 +1,3 @@
-// app.ts
 import * as THREE from 'three';
 import { getRenderingSystem } from './simulation/systems/rendering/RenderingSystem';
 import { MenuToggle } from './ui/MenuToggle';
@@ -37,8 +36,8 @@ function setupScene() {
 
     new WindowResizeHandler(resizeScene);
 
-    // Initialize ExplosionHandler
-    new ExplosionHandler(globalScene);
+    // Initialize ExplosionHandler with the scene and camera
+    new ExplosionHandler(globalScene, renderingSystem.getCamera());
 }
 
 // Setup UI interactions and button click handlers
