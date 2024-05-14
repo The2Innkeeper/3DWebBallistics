@@ -108,7 +108,7 @@ export class ExplosionHandler {
 
     private playExplosionSound(position: THREE.Vector3): void {
         const sound = new THREE.PositionalAudio(this.listener);
-        this.audioLoader.load('../../../../assets/sounds/mixkit-bomb-distant-explotion-2772.mp3', (buffer) => {
+        this.audioLoader.load('assets/sounds/mixkit-bomb-distant-explotion-2772.mp3', (buffer) => {
             sound.setBuffer(buffer);
             sound.setRefDistance(20);
             sound.setVolume(this.volume); // Use the volume parameter
