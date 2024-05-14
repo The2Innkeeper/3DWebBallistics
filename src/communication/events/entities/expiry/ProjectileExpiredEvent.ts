@@ -2,7 +2,6 @@ import { Projectile } from "../../../../simulation/entities/implementations/Proj
 
 export class ProjectileExpiredEvent {
     constructor(
-        public readonly projectile: Projectile,
-        public readonly reason: 'lifetime' | 'distance'
+        public projectile: Projectile
     ) {}
 }

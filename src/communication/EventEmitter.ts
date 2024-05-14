@@ -1,20 +1,27 @@
 export class EventEmitter<T> {
-    private listeners: EventCallback<T>[] = [];
+    private listeners: Map<EventCallback<T>, any> = new Map();
 
     emit(event: T): void {
-        for (const listener of this.listeners) {
-        listener(event);
-        }
+        this.listeners.forEach((target, callback) => callback.call(target, event));
     }
 
-    subscribe(listener: EventCallback<T>): void {
-        this.listeners.push(listener);
+    subscribe(callback: EventCallback<T>, target?: any): void {
+        this.listeners.set(callback, target);
     }
 
-    unsubscribe(listener: EventCallback<T>): void {
-        const index = this.listeners.indexOf(listener);
-        if (index !== -1) {
-        this.listeners.splice(index, 1);
-        }
+    unsubscribe(callback: EventCallback<T>): void {
+        this.listeners.delete(callback);
+    }
+
+    hasSubscribers(): boolean {
+        return this.listeners.size > 0;
+    }
+
+    removeAllListeners(target: any): void {
+        this.listeners.forEach((listenerTarget, callback) => {
+            if (listenerTarget === target) {
+                this.listeners.delete(callback);
+            }
+        });
     }
 }

@@ -19,8 +19,8 @@ export class EntityManager {
         eventBus.subscribe(CollisionEvent, this.onCollision.bind(this));
         eventBus.subscribe(ProjectileExpiredEvent, this.onProjectileExpired.bind(this));
         eventBus.subscribe(TargetExpiredEvent, this.onTargetExpired.bind(this));
-        eventBus.subscribe(TargetSpawnedEvent, this.onTargetSpawned.bind(this));
         eventBus.subscribe(ProjectileSpawnedEvent, this.onProjectileSpawned.bind(this));
+        eventBus.subscribe(TargetSpawnedEvent, this.onTargetSpawned.bind(this));
     }
 
     public getOldestUnengagedTarget(): BaseMovable | null {
@@ -34,13 +34,13 @@ export class EntityManager {
 
     private removeTarget(target: BaseMovable): void {
         const index = this.targetSpawnOrder.indexOf(target);
-        if (index !== -1) {
-            this.targetSpawnOrder.splice(index, 1);
-        }
+        if (index === -1) { return; }
 
-        if (index in this.projectileSpawnOrder)
-        {
-            this.projectileSpawnOrder.splice(index, 1);
+        target.dispose();
+        this.targetSpawnOrder.splice(index, 1);
+        if (index < this.projectileSpawnOrder.length) {
+            let projectile = this.projectileSpawnOrder[index];
+            projectile.dispose();
         }
     }
 
@@ -50,28 +50,30 @@ export class EntityManager {
 
     private removeProjectile(projectile: Projectile): void {
         const index = this.projectileSpawnOrder.indexOf(projectile);
-        if (index !== -1) {
-            this.projectileSpawnOrder.splice(index, 1);
-        }
+        if (index === -1) { return; }
 
-        if (index in this.targetSpawnOrder)
-        {
-            this.targetSpawnOrder.splice(index, 1);
+        projectile.dispose();
+        this.projectileSpawnOrder.splice(index, 1);
+        if (index < this.targetSpawnOrder.length) {
+            let target = this.targetSpawnOrder[index];
+            target.dispose();
         }
-    }
-
-    private onProjectileExpired(event: ProjectileExpiredEvent): void {
-        const expiredProjectile = event.projectile;
-        this.removeProjectile(expiredProjectile);
     }
 
     private onCollision(event: CollisionEvent): void {
         const projectile = event.projectile;
         this.removeProjectile(projectile);
     }
+    
+    private onProjectileExpired(event: ProjectileExpiredEvent): void {
+        const expiredProjectile = event.projectile;
+        console.log('Removing expired projectile:', expiredProjectile);
+        this.removeProjectile(expiredProjectile);
+    }
 
     private onTargetExpired(event: TargetExpiredEvent): void {
         const expiredTarget = event.target;
+        console.log('Removing expired target:', expiredTarget);
         this.removeTarget(expiredTarget);
     }
 

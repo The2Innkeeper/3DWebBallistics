@@ -1,17 +1,17 @@
 // Projectile.ts
 import * as THREE from 'three';
 import { BaseMovable } from './classes/BaseMovable';
-import { checkCollision } from '../../systems/physics/CollisionDetection';
+import { checkCollision } from '../../systems/collision/CollisionDetection';
 import { eventBus } from '../../../communication/EventBus';
 import { ProjectileExpiredEvent } from '../../../communication/events/entities/expiry/ProjectileExpiredEvent';
 import { CollisionEvent } from '../../../communication/events/entities/CollisionEvent';
 import { IMovable } from '../interfaces/IMovable';
 
 export class Projectile extends BaseMovable {
-    target: IMovable;
+    target: BaseMovable;
 
     constructor(scaledPositionDerivatives: THREE.Vector3[],
-                target: IMovable,
+                target: BaseMovable,
                 radius: number,
                 expiryLifetime?: number,
                 expiryDistance?: number,
@@ -29,14 +29,14 @@ export class Projectile extends BaseMovable {
 
     updatePosition(deltaTime: number): void {
         this.lifeTime += deltaTime;
-        if (this.isExpired()) {
-            eventBus.emit(ProjectileExpiredEvent, this);
+        if (this.isExpired() && !this.expired) {
+            eventBus.emit(ProjectileExpiredEvent, new ProjectileExpiredEvent(this));
             return;
         }
         this.position = this.evaluatePositionAt(this.lifeTime);
         this.updateMesh();
         if (checkCollision(this, this.target)) {
-            eventBus.emit(CollisionEvent, { projectile: this, target: this.target });
+            eventBus.emit(CollisionEvent, new CollisionEvent(this, this.target));
         }
     }
 

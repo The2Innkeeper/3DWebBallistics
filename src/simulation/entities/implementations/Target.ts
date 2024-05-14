@@ -29,8 +29,8 @@ export class Target extends BaseMovable {
         this.position = this.evaluatePositionAt(this.lifeTime);
         this.updateMesh();
 
-        if (this.isExpired()) {
-            eventBus.emit(TargetExpiredEvent, this);
+        if (this.isExpired() && !this.expired) {
+            eventBus.emit(TargetExpiredEvent, new TargetExpiredEvent(this));
             return;
         }
 
@@ -38,8 +38,8 @@ export class Target extends BaseMovable {
     }
 
     private orientTowardsShooterAtOrigin(): void {
-        const origin = new THREE.Vector3(0, 0, 0);
-        const direction = new THREE.Vector3().subVectors(origin, this.position).normalize();
+        if (!this.mesh) { return; }
+        const direction = this.position.clone().negate();
         this.mesh.lookAt(direction);
     }
 

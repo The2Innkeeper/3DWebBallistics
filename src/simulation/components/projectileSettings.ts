@@ -1,7 +1,7 @@
 // projectileSettings.ts
 export const projectileSettings = {
     indexToMinimize: 1,
-    fallbackIntersectionTime: 5.0
+    fallbackIntersectionTime: 3.0
 };
 
 export enum ProjectileSetting {
