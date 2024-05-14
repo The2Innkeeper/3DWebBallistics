@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { BaseMovable } from './classes/BaseMovable';
+import { BaseMovable } from './BaseMovable';
 import { eventBus } from '../../../communication/EventBus';
 import { TargetExpiredEvent } from '../../../communication/events/entities/expiry/TargetExpiredEvent';
 

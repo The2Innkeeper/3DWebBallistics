@@ -43,6 +43,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: './src/index.html', to: 'index.html' }, // This will copy index.html from src to dist
+        { from: './assets', to: 'assets' }, // This will copy all assets to dist
       ],
     }),
   ],

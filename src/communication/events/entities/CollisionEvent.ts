@@ -1,5 +1,5 @@
 import { Projectile } from "../../../simulation/entities/implementations/Projectile";
-import { BaseMovable } from "../../../simulation/entities/implementations/classes/BaseMovable";
+import { BaseMovable } from "../../../simulation/entities/implementations/BaseMovable";
 
 export class CollisionEvent {
     constructor(

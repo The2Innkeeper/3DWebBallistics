@@ -56,6 +56,10 @@ export class RenderingSystem {
         return this.scene;
     }
 
+    public getCamera(): THREE.PerspectiveCamera {
+        return this.camera;
+    }
+
     public addEntity(entity: IRenderable): void {
         this.entities.push(entity);
     }

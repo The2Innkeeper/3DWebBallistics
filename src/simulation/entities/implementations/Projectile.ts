@@ -1,6 +1,6 @@
 // Projectile.ts
 import * as THREE from 'three';
-import { BaseMovable } from './classes/BaseMovable';
+import { BaseMovable } from './BaseMovable';
 import { checkCollision } from '../../systems/collision/CollisionDetection';
 import { eventBus } from '../../../communication/EventBus';
 import { ProjectileExpiredEvent } from '../../../communication/events/entities/expiry/ProjectileExpiredEvent';
@@ -36,6 +36,7 @@ export class Projectile extends BaseMovable {
         this.position = this.evaluatePositionAt(this.lifeTime);
         this.updateMesh();
         if (checkCollision(this, this.target)) {
+            console.log('Projectile collided with target:', this, this.target, 'at', this.position);
             eventBus.emit(CollisionEvent, new CollisionEvent(this, this.target));
         }
     }
