@@ -1,5 +1,5 @@
 import { UIVectorControl } from './UIVectorControl';
-import { UIVectorType } from './types/VectorType';
+import { UIVectorType } from './types/UIVectorTypes';
 import * as THREE from 'three';
 
 export class UIVectorControlFactory {

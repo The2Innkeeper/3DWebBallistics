@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { createRandomVector } from './utils/VectorUtils';
 import { eventBus } from '../../communication/EventBus';
 import { UIVectorUpdateEvent } from './events/UIVectorUpdateEvent';
-import { UIVectorType, UIVectorTypes } from './types/VectorType';
+import { UIVectorType, UIVectorTypes } from './types/UIVectorTypes';
 
 export class UIVectorModel {
     private vectors: THREE.Vector3[] = [];

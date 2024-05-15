@@ -1,5 +1,5 @@
 // VectorUpdateEvent.ts
-import { UIVectorType } from '../types/VectorType';
+import { UIVectorType } from '../types/UIVectorTypes';
 import * as THREE from 'three';
 
 export class UIVectorUpdateEvent {

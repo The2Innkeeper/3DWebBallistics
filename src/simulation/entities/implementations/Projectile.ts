@@ -35,9 +35,10 @@ export class Projectile extends BaseMovable {
         }
         this.position = this.evaluatePositionAt(this.lifeTime);
         this.updateMesh();
-        if (checkCollision(this, this.target)) {
+        if (!this.expired && checkCollision(this, this.target)) {
             console.log('Projectile collided with target:', this, this.target, 'at', this.position);
             eventBus.emit(CollisionEvent, new CollisionEvent(this, this.target));
+            this.expired = true;
         }
     }
 

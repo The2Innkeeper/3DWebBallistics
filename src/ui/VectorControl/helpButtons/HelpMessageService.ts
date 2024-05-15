@@ -1,4 +1,4 @@
-import { UIVectorType, UIVectorTypes } from "../types/VectorType";
+import { UIVectorType, UIVectorTypes } from "../types/UIVectorTypes";
 
 // HelpMessageService.ts
 export class HelpMessageService {

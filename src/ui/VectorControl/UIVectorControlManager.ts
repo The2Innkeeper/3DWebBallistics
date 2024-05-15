@@ -1,4 +1,4 @@
-import { UIVectorType, UIVectorTypes } from './types/VectorType';
+import { UIVectorType, UIVectorTypes } from './types/UIVectorTypes';
 import { UIVectorControl } from './UIVectorControl';
 import { UIVectorControlFactory } from './UIVectorControlFactory';
 import { eventBus } from '../../communication/EventBus';
@@ -6,19 +6,19 @@ import { UIVectorUpdateEvent } from './events/UIVectorUpdateEvent';
 import { updateScaledDisplacementDerivatives } from '../../simulation/utils/MovementUtils';
 import * as THREE from 'three';
 import { ProjectileSetting, getProjectileSetting } from '../../simulation/components/projectileSettings';
+import { GameControlRenderer } from '../controls/GameControlRenderer';
 
 class UIVectorControlManager {
-    private vectorControls: Record<UIVectorType, UIVectorControl>;
+    private vectorControls: Record<UIVectorType | 'gameParameters', UIVectorControl | GameControlRenderer>;
 
     constructor() {
-        // First, create the 'shooter' vector control independently.
         const shooterControl = UIVectorControlFactory.createVectorControl(UIVectorTypes.Shooter);
 
-        // Now, you can safely use 'shooterControl.getVectorValues()[0]' because 'shooterControl' is already defined.
         this.vectorControls = {
-            target: UIVectorControlFactory.createVectorControl(UIVectorTypes.Target),
-            shooter: shooterControl,
-            projectile: UIVectorControlFactory.createVectorControl(UIVectorTypes.Projectile, 3, 3, [0, getProjectileSetting(ProjectileSetting.IndexToMinimize)], shooterControl.getVectorValues()[0]),
+            target: UIVectorControlFactory.createVectorControl(UIVectorTypes.Target) as UIVectorControl,
+            shooter: shooterControl as UIVectorControl,
+            projectile: UIVectorControlFactory.createVectorControl(UIVectorTypes.Projectile, 3, 3, [0, getProjectileSetting(ProjectileSetting.IndexToMinimize)], shooterControl.getVectorValues()[0]) as UIVectorControl,
+            gameParameters: new GameControlRenderer(document.getElementById('vectorControlsContainer')!),
         };
 
         this.subscribeToEvents();
@@ -30,12 +30,15 @@ class UIVectorControlManager {
     }
 
     private handleVectorUpdate(event: UIVectorUpdateEvent): void {
-        console.log(`Updating backend values for ${event.vectorType} vectors:`, event.vectors);
         this.updateBackendValues();
     }
 
     private hideAllVectorControls(): void {
-        Object.values(this.vectorControls).forEach(control => control.hide());
+        Object.values(this.vectorControls).forEach(control => {
+            if (control instanceof UIVectorControl || GameControlRenderer) {
+                control.hide();
+            }
+        });
     }
 
     private updateBackendValues(): void {
@@ -43,22 +46,36 @@ class UIVectorControlManager {
         updateScaledDisplacementDerivatives(vectors.target, vectors.shooter, vectors.projectile);
     }
 
-    public handleVectorTypeChange(selectedType: UIVectorType): void {
+    public handleVectorTypeChange(selectedType: UIVectorType | 'gameParameters'): void {
+        if (selectedType === 'gameParameters') {
+            this.hideAllVectorControls();
+            (this.vectorControls.gameParameters as GameControlRenderer).show();
+            document.getElementById('vectorControlsContainer')!.style.display = 'block';
+            return;
+        }
+
+        if (!this.vectorControls[selectedType]) {
+            console.error(`Invalid vector type selected: ${selectedType}`);
+            return;
+        }
+
         this.hideAllVectorControls();
         const selectedControl = this.vectorControls[selectedType];
         selectedControl.show();
+        document.getElementById('vectorControlsContainer')!.style.display = 'block';
     }
 
     public showInitialVectorControl(): void {
         this.hideAllVectorControls();
         this.vectorControls.target.show();
+        document.getElementById('vectorControlsContainer')!.style.display = 'block';
     }
 
     public getAllVectorValues(): Record<UIVectorType, THREE.Vector3[]> {
         return {
-            shooter: this.vectorControls.shooter.getVectorValues(),
-            projectile: this.vectorControls.projectile.getVectorValues(),
-            target: this.vectorControls.target.getVectorValues(),
+            shooter: (this.vectorControls.shooter as UIVectorControl).getVectorValues(),
+            projectile: (this.vectorControls.projectile as UIVectorControl).getVectorValues(),
+            target: (this.vectorControls.target as UIVectorControl).getVectorValues(),
         };
     }
 }

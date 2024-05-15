@@ -1,6 +1,7 @@
 // GameLoop.ts
 import { eventBus } from '../../communication/EventBus';
-import { frameUpdateEvent, FrameUpdateEvent } from '../../communication/events/FrameUpdateEvent';
+import { FrameUpdateEvent } from '../../communication/events/FrameUpdateEvent';
+import { gameSettings } from '../components/gameSettings';
 
 export class GameLoop {
   private lastTime: number = 0;
@@ -18,8 +19,10 @@ export class GameLoop {
     this.lastTime = currentTime;
 
     while (this.accumulator >= fixedDeltaTime) {
+      // Adjust the fixed delta time by the time scale
+      const scaledDeltaTime = fixedDeltaTime * gameSettings.timeScale;
       // Emit the frame update event with fixed delta time
-      eventBus.emit(FrameUpdateEvent, fixedDeltaTime);
+      eventBus.emit(FrameUpdateEvent, scaledDeltaTime);
       this.accumulator -= fixedDeltaTime;
     }
 

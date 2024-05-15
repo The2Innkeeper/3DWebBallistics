@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { eventBus } from '../../../communication/EventBus';
 import { CollisionEvent } from '../../../communication/events/entities/CollisionEvent';
+import { gameSettings } from '../../components/gameSettings'; // Import gameSettings
 
 export class ExplosionHandler {
     private scene: THREE.Scene;
@@ -9,7 +10,6 @@ export class ExplosionHandler {
     private particleLife: number[];
     private audioLoader: THREE.AudioLoader;
     private listener: THREE.AudioListener;
-    private volume: number; // Volume parameter
     private baseUrl: string; // Base URL for assets
 
     constructor(scene: THREE.Scene, camera: THREE.Camera) {
@@ -20,7 +20,6 @@ export class ExplosionHandler {
         this.particleLife = new Array(1000).fill(0);
         this.audioLoader = new THREE.AudioLoader();
         this.listener = new THREE.AudioListener();
-        this.volume = 1.0; // Default volume
         this.camera.add(this.listener); // Add listener to the camera
 
         // Determine the base URL for assets
@@ -122,7 +121,7 @@ export class ExplosionHandler {
         this.audioLoader.load(soundPath, (buffer) => {
             sound.setBuffer(buffer);
             sound.setRefDistance(20);
-            sound.setVolume(this.volume); // Use the volume parameter
+            sound.setVolume(gameSettings.volume); // Use the volume from gameSettings
             sound.play();
         });
 
@@ -141,12 +140,7 @@ export class ExplosionHandler {
         this.camera.getWorldPosition(cameraPosition);
         const distance = cameraPosition.distanceTo(position);
         const maxDistance = 100; // Maximum distance for volume attenuation
-        const adjustedVolume = Math.max(0, this.volume * (1 - distance / maxDistance));
+        const adjustedVolume = Math.max(0, gameSettings.volume * (1 - distance / maxDistance));
         sound.setVolume(adjustedVolume);
-    }
-
-    // Method to update the volume
-    public setVolume(newVolume: number): void {
-        this.volume = newVolume;
     }
 }
