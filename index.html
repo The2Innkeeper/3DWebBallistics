@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Ballistics Simulator</title>
     <link rel="stylesheet" href="./styles.css">
 </head>
+
 <body>
     <button id="menu-toggle" class="menu-toggle">☰</button>
     <div id="interface-container" class="interface">
@@ -14,6 +16,7 @@
                 <option value="target">Target</option>
                 <option value="shooter">Shooter</option>
                 <option value="projectile">Projectile</option>
+                <option value="gameParameters">Game Parameters</option>
             </select>
             <div id="vectorControlsContainer"></div>
             <div id="targetVectors" class="vector-container"></div>
@@ -32,4 +35,5 @@
     <!-- Main Application Script -->
     <script type="module" src="./bundle.js"></script>
 </body>
+
 </html>
