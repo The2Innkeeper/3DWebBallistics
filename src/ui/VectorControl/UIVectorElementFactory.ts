@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { UIVectorType } from './types/VectorType';
+import { UIVectorType } from './types/UIVectorTypes';
 import { HelpMessageService } from './helpButtons/HelpMessageService';
 import { HelpButton } from './helpButtons/HelpButton';
 import { UIVectorUpdateEvent } from './events';

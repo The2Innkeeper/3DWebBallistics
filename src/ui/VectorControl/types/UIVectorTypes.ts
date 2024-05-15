@@ -1,4 +1,4 @@
-// vectorTypes.ts
+// UIVectorTypes.ts
 export const UIVectorTypes = {
     Target: 'target',
     Shooter: 'shooter',

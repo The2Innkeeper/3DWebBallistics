@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { vectorControlManager } from './UIVectorControlManager';
 import { UIVectorUpdateEvent } from './events';
 import { eventBus } from '../../communication/EventBus';
-import { UIVectorType } from './types/VectorType';
+import { UIVectorType } from './types/UIVectorTypes';
 import { UIVectorElementFactory } from './UIVectorElementFactory';
 import { UIVectorModel } from './UIVectorModel';
 import { HelpButton } from './helpButtons/HelpButton';
@@ -59,7 +59,6 @@ export class UIVectorControlRenderer {
             input.addEventListener('change', (e) => {
                 const newValue = parseFloat((e.target as HTMLInputElement).value);
                 setProjectileSetting(settingKey, newValue);
-                console.log('Setting ', settingKey, 'to ', newValue);
             });
         
             // Create help button and pass the label as the container

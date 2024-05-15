@@ -67,13 +67,11 @@ export class EntityManager {
     
     private onProjectileExpired(event: ProjectileExpiredEvent): void {
         const expiredProjectile = event.projectile;
-        console.log('Removing expired projectile:', expiredProjectile);
         this.removeProjectile(expiredProjectile);
     }
 
     private onTargetExpired(event: TargetExpiredEvent): void {
         const expiredTarget = event.target;
-        console.log('Removing expired target:', expiredTarget);
         this.removeTarget(expiredTarget);
     }
 
