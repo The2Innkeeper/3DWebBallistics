@@ -8,7 +8,7 @@
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 100;
     pointer-events: none;
     /* Ensure overlay doesn't block interactions */
 }
@@ -17,7 +17,7 @@
     position: absolute;
     border: 2px solid #ff0;
     box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
-    z-index: 1001;
+    z-index: 101;
     pointer-events: auto;
     /* Allow interactions with the highlighted element */
 }
@@ -27,7 +27,7 @@
     background: #fff;
     padding: 20px;
     border-radius: 5px;
-    z-index: 1002;
+    z-index: 102;
     pointer-events: auto;
     /* Allow interactions with the popup */
 }

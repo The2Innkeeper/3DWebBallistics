@@ -1,4 +1,16 @@
-// TutorialManager.ts
+function getMaxZIndex(): number {
+    const elements = document.getElementsByTagName('*');
+    let maxZIndex = 0;
+
+    for (let i = 0; i < elements.length; i++) {
+        const zIndex = parseInt(window.getComputedStyle(elements[i]).zIndex);
+        if (!isNaN(zIndex)) {
+            maxZIndex = Math.max(maxZIndex, zIndex);
+        }
+    }
+
+    return maxZIndex;
+}
 
 export interface TutorialStep {
     element: string;
@@ -19,6 +31,14 @@ export class TutorialManager {
         document.getElementById("tutorial-next")!.addEventListener("click", () => this.nextStep());
         document.getElementById("tutorial-prev")!.addEventListener("click", () => this.prevStep());
         document.getElementById("tutorial-button")!.addEventListener("click", () => this.toggleTutorial());
+        window.addEventListener("resize", () => this.updateStepPosition());
+        window.addEventListener("scroll", () => this.updateStepPosition());
+    }
+
+    private updateStepPosition(): void {
+        if (this.currentStep >= 0 && this.currentStep < this.steps.length) {
+            this.showStep(this.currentStep);
+        }
     }
 
     private showStep(stepIndex: number): void {
@@ -26,6 +46,8 @@ export class TutorialManager {
         const highlight = document.getElementById("tutorial-highlight")!;
         const popup = document.getElementById("tutorial-popup")!;
         const text = document.getElementById("tutorial-text")!;
+        const tutorialButton = document.getElementById("tutorial-button")!;
+        const tutorialControls = document.getElementById("tutorial-controls")!;
 
         if (stepIndex < 0 || stepIndex >= this.steps.length) {
             overlay.style.display = "none";
@@ -33,7 +55,7 @@ export class TutorialManager {
         }
 
         const step = this.steps[stepIndex];
-        const targetElement = document.querySelector(step.element)!;
+        const targetElement = document.querySelector(step.element) as HTMLElement;
 
         if (!targetElement) {
             console.error(`Element not found: ${step.element}`);
@@ -41,17 +63,24 @@ export class TutorialManager {
         }
 
         const rect = targetElement.getBoundingClientRect();
+        const maxZIndex = getMaxZIndex();
 
         highlight.style.width = `${rect.width}px`;
         highlight.style.height = `${rect.height}px`;
-        highlight.style.top = `${rect.top}px`;
-        highlight.style.left = `${rect.left}px`;
+        highlight.style.top = `${rect.top + window.scrollY}px`;
+        highlight.style.left = `${rect.left + window.scrollX}px`;
+        highlight.style.zIndex = (maxZIndex + 1).toString();
 
         text.textContent = step.text;
-        popup.style.top = `${rect.bottom + 10}px`;
-        popup.style.left = `${rect.left}px`;
+        popup.style.top = `${rect.bottom + 10 + window.scrollY}px`;
+        popup.style.left = `${rect.left + window.scrollX}px`;
+        popup.style.zIndex = (maxZIndex + 2).toString();
 
         overlay.style.display = "flex";
+        overlay.style.zIndex = (maxZIndex + 3).toString();
+
+        tutorialButton.style.zIndex = (maxZIndex + 4).toString();
+        tutorialControls.style.zIndex = (maxZIndex + 4).toString();
     }
 
     public nextStep(): void {
@@ -75,6 +104,8 @@ export class TutorialManager {
         const tutorialControls = document.getElementById("tutorial-controls")!;
         tutorialButton.textContent = "Start Tutorial";
         tutorialControls.style.display = "none";
+        window.removeEventListener("resize", () => this.updateStepPosition());
+        window.removeEventListener("scroll", () => this.updateStepPosition());
     }
 
     public start(): void {
@@ -97,8 +128,7 @@ export class TutorialManager {
 }
 
 export const tutorialSteps: TutorialStep[] = [
-    { element: "#menu-toggle", text: "Click here to toggle the menu." },
-    { element: "#vectorTypeSelector", text: "Select the parameters to adjust." },
+    { element: "#menuSelector", text: "Select the parameters to adjust." },
     { element: "#spawn-target", text: "Click here to spawn a new target." },
     { element: "#fire-projectile", text: "Click here to fire a projectile. The projectile does not fire if there is no available target. If it does fire, it tracks the oldest spawned target." },
     { element: "#gameParameters", text: "Adjust the game parameters here." }
@@ -106,7 +136,4 @@ export const tutorialSteps: TutorialStep[] = [
 
 export function setupTutorial(): void {
     const tutorialManager = new TutorialManager(tutorialSteps);
-    document.getElementById("tutorial-button")!.addEventListener("click", () => {
-        tutorialManager.toggleTutorial();
-    });
 }
