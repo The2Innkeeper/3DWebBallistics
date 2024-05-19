@@ -1,5 +1,5 @@
 import { MenuToggle } from './MenuToggle';
-import { createVectorTypeSelector } from './VectorControl/UIMenuSelector';
+import { createMenuSelector } from './VectorControl/UIMenuSelector';
 import { UIVectorType } from './VectorControl/types/UIVectorTypes';
 import { eventBus } from '../communication/EventBus';
 import { SpawnRandomTargetEvent } from '../communication/events/entities/spawning/SpawnRandomTargetEvent';
@@ -21,9 +21,9 @@ export function setupUI() {
         new MenuToggle(menuToggleButton, interfaceContainer);
     }
 
-    const vectorTypeSelectorElement = document.getElementById('vectorTypeSelector') as HTMLSelectElement;
-    if (vectorTypeSelectorElement) {
-        createVectorTypeSelector(vectorTypeSelectorElement, handleVectorTypeChange);
+    const menuSelectorElement = document.getElementById('menuSelector') as HTMLSelectElement;
+    if (menuSelectorElement) {
+        createMenuSelector(menuSelectorElement, handleVectorTypeChange);
         vectorControlManager.showInitialVectorControl();
     }
 
