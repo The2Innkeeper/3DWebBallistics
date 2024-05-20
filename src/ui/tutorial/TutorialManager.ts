@@ -67,6 +67,11 @@ class TutorialManager {
             return;
         }
 
+        // Store the original z-index of the target element
+        if (!this.originalZIndexes.has(targetElement)) {
+            this.originalZIndexes.set(targetElement, targetElement.style.zIndex);
+        }
+
         // Remove highlight from previous element
         const previousHighlight = document.querySelector('.tutorial-highlight');
         if (previousHighlight) {
@@ -88,28 +93,27 @@ class TutorialManager {
                 overlay = document.createElement("div");
                 overlay.id = overlayId;
                 overlay.className = "tutorial-overlay";
-                overlay.style.zIndex = (maxZIndex + 1).toString();
             } else {
                 // Remove overlay from previous parent
                 overlay.parentElement?.removeChild(overlay);
             }
-
+            
+            parentElement.style.zIndex = (maxZIndex + 1).toString();
             parentElement.appendChild(overlay);
+            overlay.style.zIndex = (maxZIndex + 2).toString();
             overlay.style.display = "block";
-
-            // Set the parent element to the top of the screen
-            parentElement.style.zIndex = (maxZIndex).toString();
         }
 
         text.textContent = step.text;
+        popup.style.display = "block";
         popup.style.top = `${rect.bottom + 10 + window.scrollY}px`;
         popup.style.left = `${rect.left + window.scrollX}px`;
-        popup.style.zIndex = (maxZIndex + 2).toString();
+        popup.style.zIndex = (maxZIndex + 3).toString();
 
-        tutorialButton.style.zIndex = (maxZIndex + 4).toString();
-        tutorialControls.style.zIndex = (maxZIndex + 4).toString();
+        tutorialButton.style.zIndex = (maxZIndex + 5).toString();
+        tutorialControls.style.zIndex = (maxZIndex + 5).toString();
 
-        targetElement.style.zIndex = (maxZIndex + 3).toString();
+        targetElement.style.zIndex = (maxZIndex + 4).toString();
         // Apply highlight to the current element
         targetElement.classList.add('tutorial-highlight');
     }
@@ -137,6 +141,13 @@ class TutorialManager {
         const targetElement = document.querySelector(step.element) as HTMLElement;
         const parentElement = targetElement.parentElement;
 
+        // Restore the z-index of the target element
+        if (this.originalZIndexes.has(targetElement)) {
+            targetElement.style.zIndex = this.originalZIndexes.get(targetElement) || '';
+            this.originalZIndexes.delete(targetElement);
+        }
+
+        // Restore the z-index of the parent element
         if (parentElement && this.originalZIndexes.has(parentElement)) {
             parentElement.style.zIndex = this.originalZIndexes.get(parentElement) || '';
             this.originalZIndexes.delete(parentElement);
