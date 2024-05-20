@@ -5,7 +5,7 @@ function getMaxZIndex(): number {
     for (let i = 0; i < elements.length; i++) {
         const zIndex = parseInt(window.getComputedStyle(elements[i]).zIndex);
         if (!isNaN(zIndex)) {
-            maxZIndex = Math.max(maxZIndex, zIndex);
+            maxZIndex = Math.min(Math.max(maxZIndex, zIndex), 10000); // Limit max z-index
         }
     }
 
@@ -17,13 +17,15 @@ export interface TutorialStep {
     text: string;
 }
 
-export class TutorialManager {
+class TutorialManager {
     private steps: TutorialStep[];
     private currentStep: number;
+    private originalZIndexes: Map<HTMLElement, string>;
 
     constructor(steps: TutorialStep[]) {
         this.steps = steps;
         this.currentStep = 0;
+        this.originalZIndexes = new Map();
         this.setupEventListeners();
     }
 
@@ -42,15 +44,18 @@ export class TutorialManager {
     }
 
     private showStep(stepIndex: number): void {
-        const overlay = document.getElementById("tutorial-overlay")!;
-        const highlight = document.getElementById("tutorial-highlight")!;
+        const overlayId = "dynamic-tutorial-overlay";
+        let overlay = document.getElementById(overlayId);
+
         const popup = document.getElementById("tutorial-popup")!;
         const text = document.getElementById("tutorial-text")!;
         const tutorialButton = document.getElementById("tutorial-button")!;
         const tutorialControls = document.getElementById("tutorial-controls")!;
 
         if (stepIndex < 0 || stepIndex >= this.steps.length) {
-            overlay.style.display = "none";
+            if (overlay) {
+                overlay.style.display = "none";
+            }
             return;
         }
 
@@ -62,48 +67,97 @@ export class TutorialManager {
             return;
         }
 
+        // Remove highlight from previous element
+        const previousHighlight = document.querySelector('.tutorial-highlight');
+        if (previousHighlight) {
+            previousHighlight.classList.remove('tutorial-highlight');
+        }
+
         const rect = targetElement.getBoundingClientRect();
         const maxZIndex = getMaxZIndex();
 
-        highlight.style.width = `${rect.width}px`;
-        highlight.style.height = `${rect.height}px`;
-        highlight.style.top = `${rect.top + window.scrollY}px`;
-        highlight.style.left = `${rect.left + window.scrollX}px`;
-        highlight.style.zIndex = (maxZIndex + 1).toString();
+        // Append the overlay to the parent of the target element
+        const parentElement = targetElement.parentElement;
+        if (parentElement) {
+            // Store the original z-index
+            if (!this.originalZIndexes.has(parentElement)) {
+                this.originalZIndexes.set(parentElement, parentElement.style.zIndex);
+            }
+
+            if (!overlay) {
+                overlay = document.createElement("div");
+                overlay.id = overlayId;
+                overlay.className = "tutorial-overlay";
+                overlay.style.zIndex = (maxZIndex + 1).toString();
+            } else {
+                // Remove overlay from previous parent
+                overlay.parentElement?.removeChild(overlay);
+            }
+
+            parentElement.appendChild(overlay);
+            overlay.style.display = "block";
+
+            // Set the parent element to the top of the screen
+            parentElement.style.zIndex = (maxZIndex).toString();
+        }
 
         text.textContent = step.text;
         popup.style.top = `${rect.bottom + 10 + window.scrollY}px`;
         popup.style.left = `${rect.left + window.scrollX}px`;
         popup.style.zIndex = (maxZIndex + 2).toString();
 
-        overlay.style.display = "flex";
-        overlay.style.zIndex = (maxZIndex + 3).toString();
-
         tutorialButton.style.zIndex = (maxZIndex + 4).toString();
         tutorialControls.style.zIndex = (maxZIndex + 4).toString();
+
+        targetElement.style.zIndex = (maxZIndex + 3).toString();
+        // Apply highlight to the current element
+        targetElement.classList.add('tutorial-highlight');
     }
 
     public nextStep(): void {
         if (this.currentStep < this.steps.length - 1) {
+            this.restoreOriginalZIndex();
             this.currentStep++;
             this.showStep(this.currentStep);
+        } else {
+            this.close(); // Close the tutorial if it's the last step
         }
     }
 
     public prevStep(): void {
         if (this.currentStep > 0) {
+            this.restoreOriginalZIndex();
             this.currentStep--;
             this.showStep(this.currentStep);
         }
     }
 
+    private restoreOriginalZIndex(): void {
+        const step = this.steps[this.currentStep];
+        const targetElement = document.querySelector(step.element) as HTMLElement;
+        const parentElement = targetElement.parentElement;
+
+        if (parentElement && this.originalZIndexes.has(parentElement)) {
+            parentElement.style.zIndex = this.originalZIndexes.get(parentElement) || '';
+            this.originalZIndexes.delete(parentElement);
+        }
+    }
+
     public close(): void {
-        const overlay = document.getElementById("tutorial-overlay")!;
-        overlay.style.display = "none";
+        const overlay = document.getElementById("dynamic-tutorial-overlay");
+        if (overlay) {
+            overlay.style.display = "none";
+        }
+        const highlightedElement = document.querySelector('.tutorial-highlight');
+        if (highlightedElement) {
+            highlightedElement.classList.remove('tutorial-highlight');
+        }
         const tutorialButton = document.getElementById("tutorial-button")!;
         const tutorialControls = document.getElementById("tutorial-controls")!;
+        const popup = document.getElementById("tutorial-popup")!;
         tutorialButton.textContent = "Start Tutorial";
         tutorialControls.style.display = "none";
+        popup.style.display = "none";
         window.removeEventListener("resize", () => this.updateStepPosition());
         window.removeEventListener("scroll", () => this.updateStepPosition());
     }

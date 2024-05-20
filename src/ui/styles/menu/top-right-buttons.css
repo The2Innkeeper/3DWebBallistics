@@ -2,9 +2,5 @@
 .top-right-buttons {
     position: absolute;
     top: 10px;
-    /* Adjust as needed */
     right: 10px;
-    /* Adjust as needed */
-    z-index: 10;
-    /* Ensure it's above other elements */
 }

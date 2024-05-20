@@ -5,38 +5,25 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    display: none;
     justify-content: center;
     align-items: center;
-    z-index: 100;
-    pointer-events: none;
-    /* Ensure overlay doesn't block interactions */
+    pointer-events: auto;
+    z-index: 9999;
 }
 
 .tutorial-highlight {
-    position: absolute;
     border: 2px solid #ff0;
     box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
-    z-index: 101;
-    pointer-events: auto;
-    /* Allow interactions with the highlighted element */
+    z-index: 10000;
 }
 
 .tutorial-popup {
     position: absolute;
-    background: #fff;
+    background: white;
     padding: 20px;
     border-radius: 5px;
-    z-index: 102;
-    pointer-events: auto;
-    /* Allow interactions with the popup */
 }
 
 .tutorial-text {
     margin-bottom: 10px;
-}
-
-.tutorial-buttons {
-    display: flex;
-    justify-content: space-between;
 }

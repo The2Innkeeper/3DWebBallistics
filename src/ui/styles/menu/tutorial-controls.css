@@ -4,6 +4,6 @@
     bottom: 10px;
     left: 50%; /* Center horizontally */
     transform: translateX(-50%); /* Adjust to truly center the element */
-    z-index: 1000;
+    z-index: 10001;
     gap: 10px;
 }
