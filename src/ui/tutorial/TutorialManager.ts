@@ -1,3 +1,6 @@
+import { MenuToggle } from "../MenuToggle";
+import { UIMenuSelector } from "../VectorControl/UIMenuSelector";
+
 function getMaxZIndex(): number {
     const elements = document.getElementsByTagName('*');
     let maxZIndex = 0;
@@ -15,17 +18,22 @@ function getMaxZIndex(): number {
 export interface TutorialStep {
     element: string;
     text: string;
+    beforeStep?: () => void;
+    onClick?: () => void;
 }
 
 class TutorialManager {
     private steps: TutorialStep[];
     private currentStep: number;
     private originalZIndexes: Map<HTMLElement, string>;
+    private targetObserver: MutationObserver | null = null;
+    private menuToggle: MenuToggle;
 
-    constructor(steps: TutorialStep[]) {
+    constructor(steps: TutorialStep[], menuToggle: MenuToggle) {
         this.steps = steps;
         this.currentStep = 0;
         this.originalZIndexes = new Map();
+        this.menuToggle = menuToggle;
         this.setupEventListeners();
     }
 
@@ -33,8 +41,6 @@ class TutorialManager {
         document.getElementById("tutorial-next")!.addEventListener("click", () => this.nextStep());
         document.getElementById("tutorial-prev")!.addEventListener("click", () => this.prevStep());
         document.getElementById("tutorial-button")!.addEventListener("click", () => this.toggleTutorial());
-        window.addEventListener("resize", () => this.updateStepPosition());
-        window.addEventListener("scroll", () => this.updateStepPosition());
     }
 
     private updateStepPosition(): void {
@@ -60,6 +66,12 @@ class TutorialManager {
         }
 
         const step = this.steps[stepIndex];
+
+        // Execute the beforeStep function if it exists
+        if (step.beforeStep) {
+            step.beforeStep();
+        }
+
         const targetElement = document.querySelector(step.element) as HTMLElement;
 
         if (!targetElement) {
@@ -97,7 +109,7 @@ class TutorialManager {
                 // Remove overlay from previous parent
                 overlay.parentElement?.removeChild(overlay);
             }
-            
+
             parentElement.style.zIndex = (maxZIndex + 1).toString();
             parentElement.appendChild(overlay);
             overlay.style.zIndex = (maxZIndex + 2).toString();
@@ -106,8 +118,7 @@ class TutorialManager {
 
         text.textContent = step.text;
         popup.style.display = "block";
-        popup.style.top = `${rect.bottom + 10 + window.scrollY}px`;
-        popup.style.left = `${rect.left + window.scrollX}px`;
+        this.setPosition(targetElement, popup);
         popup.style.zIndex = (maxZIndex + 3).toString();
 
         tutorialButton.style.zIndex = (maxZIndex + 5).toString();
@@ -116,11 +127,103 @@ class TutorialManager {
         targetElement.style.zIndex = (maxZIndex + 4).toString();
         // Apply highlight to the current element
         targetElement.classList.add('tutorial-highlight');
+
+        // Observe the target element for changes
+        if (this.targetObserver) {
+            this.targetObserver.disconnect();
+        }
+
+        this.targetObserver = new MutationObserver(() => {
+            this.updatePopupPosition(targetElement, popup);
+        });
+
+        this.targetObserver.observe(targetElement, { attributes: true, childList: true, subtree: true });
+
+        // Add onClick event listener if provided
+        if (step.onClick) {
+            const handleClick = () => {
+                step.onClick!();
+                targetElement.removeEventListener('click', handleClick);
+            };
+            targetElement.addEventListener('click', handleClick);
+        }
+
+        // Continuously update the position during animation
+        this.updatePopupDuringAnimation(targetElement, popup);
+    }
+
+    private setPosition(targetElement: HTMLElement, popup: HTMLElement): void {
+        const rect = targetElement.getBoundingClientRect();
+        const popupRect = popup.getBoundingClientRect();
+
+        let top = rect.bottom + 10 + window.scrollY;
+        let left = rect.left + window.scrollX;
+        let isFallbackPosition = false;
+
+        // Check if there's enough space below
+        if (top + popupRect.height > window.innerHeight) {
+            // Try positioning above the target
+            top = rect.top - popupRect.height - 10 + window.scrollY;
+        }
+
+        // If still out of bounds, check for space on the right
+        if (top < 0 || top + popupRect.height > window.innerHeight) {
+            top = rect.top + window.scrollY;
+            left = rect.right + 10 + window.scrollX;
+
+            // If not enough space on the right, check for space on the left
+            if (left + popupRect.width > window.innerWidth) {
+                left = rect.left - popupRect.width - 10 + window.scrollX;
+            }
+        }
+
+        // If the popup is still out of bounds, ensure it stays within the viewport
+        if (top < 0) {
+            top = 10; // Add some margin from the top
+        }
+        if (left < 0) {
+            left = 10; // Add some margin from the left
+        }
+
+        // Final fallback: center the popup in the viewport if no space is available around the target element
+        if (top + popupRect.height > window.innerHeight || left + popupRect.width > window.innerWidth) {
+            top = (window.innerHeight - popupRect.height) / 2 + window.scrollY;
+            left = (window.innerWidth - popupRect.width) / 2 + window.scrollX;
+            isFallbackPosition = true;
+            popup.style.zIndex = (targetElement.style.zIndex + 1).toString();
+        }
+
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+    }
+
+    private updatePopupPosition(targetElement: HTMLElement, popup: HTMLElement): void {
+        this.setPosition(targetElement, popup);
+    }
+
+    private updatePopupDuringAnimation(targetElement: HTMLElement, popup: HTMLElement): void {
+        const update = () => {
+            this.setPosition(targetElement, popup);
+            if (this.menuToggle.getIsAnimating()) {
+                requestAnimationFrame(update);
+            }
+        };
+        requestAnimationFrame(update);
+    }
+
+    private addResizeAndScrollListeners(): void {
+        window.addEventListener("resize", this.updateStepPosition);
+        window.addEventListener("scroll", this.updateStepPosition);
+    }
+
+    private removeResizeAndScrollListeners(): void {
+        window.removeEventListener("resize", this.updateStepPosition);
+        window.removeEventListener("scroll", this.updateStepPosition);
     }
 
     public nextStep(): void {
         if (this.currentStep < this.steps.length - 1) {
-            this.restoreOriginalZIndex();
+            this.restoreOriginalZIndexes();
             this.currentStep++;
             this.showStep(this.currentStep);
         } else {
@@ -130,13 +233,13 @@ class TutorialManager {
 
     public prevStep(): void {
         if (this.currentStep > 0) {
-            this.restoreOriginalZIndex();
+            this.restoreOriginalZIndexes();
             this.currentStep--;
             this.showStep(this.currentStep);
         }
     }
 
-    private restoreOriginalZIndex(): void {
+    private restoreOriginalZIndexes(): void {
         const step = this.steps[this.currentStep];
         const targetElement = document.querySelector(step.element) as HTMLElement;
         const parentElement = targetElement.parentElement;
@@ -155,9 +258,12 @@ class TutorialManager {
     }
 
     public close(): void {
+        if (this.targetObserver) {
+            this.targetObserver.disconnect();
+        }
         const overlay = document.getElementById("dynamic-tutorial-overlay");
         if (overlay) {
-            overlay.style.display = "none";
+            overlay.remove();
         }
         const highlightedElement = document.querySelector('.tutorial-highlight');
         if (highlightedElement) {
@@ -169,8 +275,9 @@ class TutorialManager {
         tutorialButton.textContent = "Start Tutorial";
         tutorialControls.style.display = "none";
         popup.style.display = "none";
-        window.removeEventListener("resize", () => this.updateStepPosition());
-        window.removeEventListener("scroll", () => this.updateStepPosition());
+
+        this.removeResizeAndScrollListeners();
+        this.restoreOriginalZIndexes();
     }
 
     public start(): void {
@@ -180,6 +287,7 @@ class TutorialManager {
         const tutorialControls = document.getElementById("tutorial-controls")!;
         tutorialButton.textContent = "Close Tutorial";
         tutorialControls.style.display = "flex";
+        this.addResizeAndScrollListeners();
     }
 
     public toggleTutorial(): void {
@@ -192,13 +300,38 @@ class TutorialManager {
     }
 }
 
-export const tutorialSteps: TutorialStep[] = [
-    { element: "#menuSelector", text: "Select the parameters to adjust." },
-    { element: "#spawn-target", text: "Click here to spawn a new target." },
-    { element: "#fire-projectile", text: "Click here to fire a projectile. The projectile does not fire if there is no available target. If it does fire, it tracks the oldest spawned target." },
-    { element: "#gameParameters", text: "Adjust the game parameters here." }
-];
-
-export function setupTutorial(): void {
-    const tutorialManager = new TutorialManager(tutorialSteps);
+export function setupTutorial(menuToggle: MenuToggle, menuSelector: UIMenuSelector): void {
+    const tutorialSteps: TutorialStep[] = [
+        {
+            element: "#menuSelector",
+            text: "Select the parameters to adjust: Target, Shooter, Projectile, or Game Parameters.",
+            beforeStep: () => {
+                menuToggle.openMenu(); // Ensure the menu is open before starting this step
+            }
+        },
+        {
+            element: "#targetVectors",
+            text: "These are the projectile derivatives of the target. They are used to calculate the target's trajectory.",
+            beforeStep: () => {
+                menuToggle.openMenu(); // Ensure the menu is open before starting this step
+                menuSelector.changeToType("target");
+            }
+        },
+        { element: "#spawn-target", text: "Click here to spawn a new target based on the parameters in the menu." },
+        { element: "#spawn-random-target", text: "Click here to spawn a new target with random parameters." },
+        { element: "#fire-projectile", text: "Click here to fire a projectile. The projectile does not fire if there is no available target. If it does fire, it tracks the oldest spawned target." },
+        { 
+            element: "#gameParameters",
+            text: "Adjust the game parameters here.",
+            beforeStep: () => {
+                menuToggle.openMenu(); // Ensure the menu is open before starting this step
+                menuSelector.changeToType("gameParameters");
+            }
+        },
+        {
+            element: "#scene-container canvas",
+            text: "You can scroll or pinch to zoom out and in, left-drag to rotate, right-drag to move.",
+        },
+    ];
+    const tutorialManager = new TutorialManager(tutorialSteps, menuToggle);
 }

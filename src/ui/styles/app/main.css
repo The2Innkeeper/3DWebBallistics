@@ -1,16 +1,19 @@
 /* main.css - General styles applicable across the entire application */
 
 body {
+    position: relative;
     font-family: 'Open Sans', sans-serif;
     background-color: #fff;
     color: #000000;
     margin: 0;
     line-height: 1.6;
+    z-index: -2;
 }
 
 /* Make sure the body doesn't have any extra padding or margins */
 body,
 html {
+    position: relative;
     padding: 0;
     margin: 0;
     overflow: hidden;

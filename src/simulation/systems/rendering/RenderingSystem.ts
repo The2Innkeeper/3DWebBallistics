@@ -70,6 +70,12 @@ export class RenderingSystem {
             this.entities.splice(index, 1);
         }
     }
+
+    public resizeRenderer(): void {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+    }
 }
 
 export function getRenderingSystem(): RenderingSystem {

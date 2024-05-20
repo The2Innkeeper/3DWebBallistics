@@ -18,7 +18,7 @@ class UIVectorControlManager {
             target: UIVectorControlFactory.createVectorControl(UIVectorTypes.Target) as UIVectorControl,
             shooter: shooterControl as UIVectorControl,
             projectile: UIVectorControlFactory.createVectorControl(UIVectorTypes.Projectile, 3, 3, [0, getProjectileSetting(ProjectileSetting.IndexToMinimize)], shooterControl.getVectorValues()[0]) as UIVectorControl,
-            gameParameters: new GameControlRenderer(document.getElementById('vectorControlsContainer')!),
+            gameParameters: GameControlRenderer.getInstance(document.getElementById('vectorControlsContainer')!),
         };
 
         this.subscribeToEvents();

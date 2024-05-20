@@ -1,13 +1,8 @@
 import { UIVectorType, UIVectorTypes } from './types/UIVectorTypes';
-import { GameControlRenderer } from '../controls/GameControlRenderer';
 
-class UIMenuSelector {
-    private vectorControlsContainer: HTMLElement;
-    private gameParametersRenderer: GameControlRenderer;
+export class UIMenuSelector {
 
     constructor(private menuSelector: HTMLSelectElement, private onVectorTypeChange: (selectedType: UIVectorType | 'gameParameters') => void) {
-        this.vectorControlsContainer = document.getElementById('vectorControlsContainer')!;
-        this.gameParametersRenderer = new GameControlRenderer(this.vectorControlsContainer);
         this.initialize();
     }
 
@@ -29,6 +24,11 @@ class UIMenuSelector {
 
     public getInitialType(): UIVectorType | 'gameParameters' {
         return this.menuSelector.value as UIVectorType | 'gameParameters';
+    }
+
+    public changeToType(type: UIVectorType | 'gameParameters'): void {
+        this.menuSelector.value = type;
+        this.handleChange();
     }
 }
 

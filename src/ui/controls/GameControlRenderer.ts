@@ -1,6 +1,7 @@
 import { gameSettings } from "../../simulation/components/gameSettings";
 
 export class GameControlRenderer {
+    private static instance: GameControlRenderer;
     private container: HTMLElement;
     private gameParametersSection!: HTMLElement;
     private applyButton!: HTMLButtonElement;
@@ -8,60 +9,71 @@ export class GameControlRenderer {
     private volumeInput!: HTMLInputElement; // Volume input
     private volumeValueDisplay!: HTMLElement; // Volume value display
 
-    constructor(container: HTMLElement) {
+    private constructor(container: HTMLElement) {
         this.container = container;
         this.initialize();
     }
 
+    public static getInstance(container: HTMLElement): GameControlRenderer {
+        if (!GameControlRenderer.instance) {
+            GameControlRenderer.instance = new GameControlRenderer(container);
+        }
+        return GameControlRenderer.instance;
+    }
+
     private initialize(): void {
-        this.gameParametersSection = document.createElement('div');
-        this.gameParametersSection.id = 'gameParameters';
-        this.gameParametersSection.style.display = 'none';
+        this.gameParametersSection = document.getElementById('gameParameters')!;
+        
+        if (!this.gameParametersSection) {
+            this.gameParametersSection = document.createElement('div');
+            this.gameParametersSection.id = 'gameParameters';
+            this.gameParametersSection.style.display = 'none';
 
-        const header = document.createElement('h3');
-        header.textContent = 'Game Parameters';
-        this.gameParametersSection.appendChild(header);
+            const header = document.createElement('h3');
+            header.textContent = 'Game Parameters';
+            this.gameParametersSection.appendChild(header);
 
-        const timeScaleLabel = document.createElement('label');
-        timeScaleLabel.setAttribute('for', 'time-scale');
-        timeScaleLabel.textContent = 'Time Scale:';
-        this.gameParametersSection.appendChild(timeScaleLabel);
+            const timeScaleLabel = document.createElement('label');
+            timeScaleLabel.setAttribute('for', 'time-scale');
+            timeScaleLabel.textContent = 'Time Scale:';
+            this.gameParametersSection.appendChild(timeScaleLabel);
 
-        this.timeScaleInput = document.createElement('input');
-        this.timeScaleInput.type = 'number';
-        this.timeScaleInput.id = 'time-scale';
-        this.timeScaleInput.value = '1.0';
-        this.timeScaleInput.step = '0.05';
-        this.timeScaleInput.min = '0.01';
-        this.gameParametersSection.appendChild(this.timeScaleInput);
+            this.timeScaleInput = document.createElement('input');
+            this.timeScaleInput.type = 'number';
+            this.timeScaleInput.id = 'time-scale';
+            this.timeScaleInput.value = '1.0';
+            this.timeScaleInput.step = '0.05';
+            this.timeScaleInput.min = '0.01';
+            this.gameParametersSection.appendChild(this.timeScaleInput);
 
-        const volumeLabel = document.createElement('label');
-        volumeLabel.setAttribute('for', 'volume');
-        volumeLabel.textContent = 'Volume:';
-        this.gameParametersSection.appendChild(volumeLabel);
+            const volumeLabel = document.createElement('label');
+            volumeLabel.setAttribute('for', 'volume');
+            volumeLabel.textContent = 'Volume:';
+            this.gameParametersSection.appendChild(volumeLabel);
 
-        this.volumeInput = document.createElement('input');
-        this.volumeInput.type = 'range';
-        this.volumeInput.id = 'volume';
-        this.volumeInput.min = '0';
-        this.volumeInput.max = '1';
-        this.volumeInput.step = '0.01';
-        this.volumeInput.value = '1.0';
-        this.volumeInput.addEventListener('input', this.updateVolumeDisplay.bind(this));
-        this.gameParametersSection.appendChild(this.volumeInput);
+            this.volumeInput = document.createElement('input');
+            this.volumeInput.type = 'range';
+            this.volumeInput.id = 'volume';
+            this.volumeInput.min = '0';
+            this.volumeInput.max = '1';
+            this.volumeInput.step = '0.01';
+            this.volumeInput.value = '1.0';
+            this.volumeInput.addEventListener('input', this.updateVolumeDisplay.bind(this));
+            this.gameParametersSection.appendChild(this.volumeInput);
 
-        this.volumeValueDisplay = document.createElement('span');
-        this.volumeValueDisplay.id = 'volume-value';
-        this.volumeValueDisplay.textContent = this.volumeInput.value;
-        this.gameParametersSection.appendChild(this.volumeValueDisplay);
+            this.volumeValueDisplay = document.createElement('span');
+            this.volumeValueDisplay.id = 'volume-value';
+            this.volumeValueDisplay.textContent = this.volumeInput.value;
+            this.gameParametersSection.appendChild(this.volumeValueDisplay);
 
-        this.applyButton = document.createElement('button');
-        this.applyButton.id = 'apply-parameters';
-        this.applyButton.textContent = 'Apply';
-        this.applyButton.addEventListener('click', this.applyParameters.bind(this));
-        this.gameParametersSection.appendChild(this.applyButton);
+            this.applyButton = document.createElement('button');
+            this.applyButton.id = 'apply-parameters';
+            this.applyButton.textContent = 'Apply';
+            this.applyButton.addEventListener('click', this.applyParameters.bind(this));
+            this.gameParametersSection.appendChild(this.applyButton);
 
-        this.container.appendChild(this.gameParametersSection);
+            this.container.appendChild(this.gameParametersSection);
+        }
     }
 
     private updateVolumeDisplay(): void {
