@@ -320,7 +320,15 @@ export function setupTutorial(menuToggle: MenuToggle, menuSelector: UIMenuSelect
         { element: "#spawn-target", text: "Click here to spawn a new target based on the parameters in the menu." },
         { element: "#spawn-random-target", text: "Click here to spawn a new target with random parameters." },
         { element: "#fire-projectile", text: "Click here to fire a projectile. The projectile does not fire if there is no available target. If it does fire, it tracks the oldest spawned target." },
-        { 
+        {
+            element: "#projectile-parameters-container",
+            text: "These are the parameters of the projectile. Click on the help buttons for more details.",
+            beforeStep: () => {
+                menuToggle.openMenu(); // Ensure the menu is open before starting this step
+                menuSelector.changeToType("projectile");
+            }
+        },
+        {
             element: "#gameParameters",
             text: "Adjust the game parameters here.",
             beforeStep: () => {
