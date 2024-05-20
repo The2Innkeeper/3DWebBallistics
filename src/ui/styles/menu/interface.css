@@ -1,6 +1,6 @@
 /* Interface sidebar for control elements */
 .interface {
-    position: fixed;
+    position: absolute;
     width: 25vw;
     /* Use viewport width for a responsive sidebar width */
     max-width: var(--interface-max-width);

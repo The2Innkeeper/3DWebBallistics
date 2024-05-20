@@ -7,9 +7,10 @@ import { createTargetSpawner } from '../spawners/TargetSpawner';
 import { createProjectileSpawner } from '../spawners/ProjectileSpawner';
 import { ExplosionHandler } from '../collision/ExplosionHandler';
 
+const renderingSystem = getRenderingSystem();
+
 // Setup scene rendering and spawners
 export function setupScene(): THREE.Scene {
-    const renderingSystem = getRenderingSystem();
     const scene = renderingSystem.getScene();
 
     createTargetSpawner(scene);
@@ -36,4 +37,5 @@ export function resizeScene(): void {
         sceneContainer.style.width = `${window.innerWidth}px`;
         sceneContainer.style.height = `${window.innerHeight}px`;
     }
+    renderingSystem.resizeRenderer();
 }

@@ -1,4 +1,6 @@
 export class MenuToggle {
+    private isAnimating: boolean = false;
+
     constructor(private menuToggle: HTMLElement, private interfaceContainer: HTMLElement) {
         this.initialize();
     }
@@ -11,6 +13,7 @@ export class MenuToggle {
     }
 
     private toggleMenu(): void {
+        this.isAnimating = true;
         this.interfaceContainer.classList.toggle('interface-hidden');
         const isInterfaceHidden = this.interfaceContainer.classList.contains('interface-hidden');
         
@@ -22,6 +25,24 @@ export class MenuToggle {
             this.menuToggle.style.transition = `transform ${transitionTime}`;
 
             this.menuToggle.style.transform = isInterfaceHidden ? 'translateX(0)' : `translateX(${interfaceWidth}px)`;
+
+            setTimeout(() => {
+                this.isAnimating = false;
+            }, 250); // Match the transition time
         });
+    }
+
+    public isMenuOpen(): boolean {
+        return !this.interfaceContainer.classList.contains('interface-hidden');
+    }
+
+    public openMenu(): void {
+        if (!this.isMenuOpen()) {
+            this.toggleMenu();
+        }
+    }
+
+    public getIsAnimating(): boolean {
+        return this.isAnimating;
     }
 }

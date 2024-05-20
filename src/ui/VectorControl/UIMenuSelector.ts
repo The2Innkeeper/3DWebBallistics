@@ -1,40 +1,40 @@
 import { UIVectorType, UIVectorTypes } from './types/UIVectorTypes';
-import { GameControlRenderer } from '../controls/GameControlRenderer';
 
-class UIVectorTypeSelector {
-    private vectorControlsContainer: HTMLElement;
-    private gameParametersRenderer: GameControlRenderer;
+export class UIMenuSelector {
 
-    constructor(private vectorTypeSelector: HTMLSelectElement, private onVectorTypeChange: (selectedType: UIVectorType | 'gameParameters') => void) {
-        this.vectorControlsContainer = document.getElementById('vectorControlsContainer')!;
-        this.gameParametersRenderer = new GameControlRenderer(this.vectorControlsContainer);
+    constructor(private menuSelector: HTMLSelectElement, private onVectorTypeChange: (selectedType: UIVectorType | 'gameParameters') => void) {
         this.initialize();
     }
 
     private initialize(): void {
-        this.vectorTypeSelector.addEventListener('change', this.handleChange.bind(this));
+        this.menuSelector.addEventListener('change', this.handleChange.bind(this));
         this.handleChange(); // Initialize the display based on the initial selection
     }
 
     private handleChange(event?: Event): void {
-        const selectedType = this.vectorTypeSelector.value as UIVectorType | 'gameParameters';
+        const selectedType = this.menuSelector.value as UIVectorType | 'gameParameters';
 
         if (selectedType === 'gameParameters' || Object.values(UIVectorTypes).includes(selectedType)) {
             this.onVectorTypeChange(selectedType);
         } else {
-            console.error(`Invalid vector type selected: ${this.vectorTypeSelector.value}`);
+            console.error(`Invalid vector type selected: ${this.menuSelector.value}`);
             return;
         }
     }
 
     public getInitialType(): UIVectorType | 'gameParameters' {
-        return this.vectorTypeSelector.value as UIVectorType | 'gameParameters';
+        return this.menuSelector.value as UIVectorType | 'gameParameters';
+    }
+
+    public changeToType(type: UIVectorType | 'gameParameters'): void {
+        this.menuSelector.value = type;
+        this.handleChange();
     }
 }
 
-export function createVectorTypeSelector(
-    vectorTypeSelector: HTMLSelectElement,
+export function createMenuSelector(
+    menuSelector: HTMLSelectElement,
     onVectorTypeChange: (selectedType: UIVectorType | 'gameParameters') => void
-): UIVectorTypeSelector {
-    return new UIVectorTypeSelector(vectorTypeSelector, onVectorTypeChange);
+): UIMenuSelector {
+    return new UIMenuSelector(menuSelector, onVectorTypeChange);
 }

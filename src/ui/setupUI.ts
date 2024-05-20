@@ -1,5 +1,5 @@
 import { MenuToggle } from './MenuToggle';
-import { createVectorTypeSelector } from './VectorControl/UIMenuSelector';
+import { createMenuSelector } from './VectorControl/UIMenuSelector';
 import { UIVectorType } from './VectorControl/types/UIVectorTypes';
 import { eventBus } from '../communication/EventBus';
 import { SpawnRandomTargetEvent } from '../communication/events/entities/spawning/SpawnRandomTargetEvent';
@@ -8,35 +8,35 @@ import { SpawnProjectileEvent } from '../communication/events/entities/spawning/
 import { entityManager } from '../simulation/systems/EntityManager';
 import { vectorControlManager } from './VectorControl/UIVectorControlManager';
 import { getProjectileSetting, ProjectileSetting } from '../simulation/components/projectileSettings';
+import { setupTutorial } from './tutorial/TutorialManager';
 
 // Setup UI interactions and button click handlers
 export function setupUI() {
-    const menuToggleButton = document.getElementById('menu-toggle');
-    const interfaceContainer = document.getElementById('interface-container');
+    const menuToggleButton = document.getElementById('menu-toggle')!;
+    const interfaceContainer = document.getElementById('interface-container')!;
     const spawnTargetButton = document.getElementById('spawn-target');
     const spawnRandomTargetButton = document.getElementById('spawn-random-target');
     const fireProjectileButton = document.getElementById('fire-projectile');
 
-    if (menuToggleButton && interfaceContainer) {
-        new MenuToggle(menuToggleButton, interfaceContainer);
-    }
-
-    const vectorTypeSelectorElement = document.getElementById('vectorTypeSelector') as HTMLSelectElement;
-    if (vectorTypeSelectorElement) {
-        createVectorTypeSelector(vectorTypeSelectorElement, handleVectorTypeChange);
-        vectorControlManager.showInitialVectorControl();
-    }
+    const menuToggle = new MenuToggle(menuToggleButton, interfaceContainer);
+    
+    const menuSelectorElement = document.getElementById('menuSelector')! as HTMLSelectElement;
+    
+    const menuSelector = createMenuSelector(menuSelectorElement, handleVectorTypeChange);
+    vectorControlManager.showInitialVectorControl();
+    
+    setupTutorial(menuToggle, menuSelector);
 
     // Event listeners for spawning targets and projectiles
     spawnTargetButton?.addEventListener('click', () => {
         const uiVectors = vectorControlManager.getAllVectorValues();
         eventBus.emit(SpawnTargetEvent, new SpawnTargetEvent(uiVectors.target, uiVectors.shooter));
-        console.log('Spawn target event triggered with vectors:', uiVectors.target, uiVectors.shooter);
+        // console.log('Spawn target event triggered with vectors:', uiVectors.target, uiVectors.shooter);
     });
 
     spawnRandomTargetButton?.addEventListener('click', () => {
         eventBus.emit(SpawnRandomTargetEvent, new SpawnRandomTargetEvent());
-        console.log('Spawn random target event triggered');
+        // console.log('Spawn random target event triggered');
     });
 
     fireProjectileButton?.addEventListener('click', () => {
@@ -55,19 +55,20 @@ export function setupUI() {
             getProjectileSetting(ProjectileSetting.FallbackIntersectionTime),
             target
         ));
-        const targetDetails = {
-            target: JSON.stringify(uiVectors.target),
-            shooter: JSON.stringify(uiVectors.shooter),
-            projectile: JSON.stringify(uiVectors.projectile),
-            indexToMinimize: getProjectileSetting(ProjectileSetting.IndexToMinimize),
-            fallbackIntersectionTime: getProjectileSetting(ProjectileSetting.FallbackIntersectionTime),
-            targetObject: target ? {
-                scaledTargetDerivatives: JSON.stringify(target.getScaledPositionDerivatives()),
-                position: JSON.stringify(target.position),
-                lifetime: target.lifeTime
-            } : null,
-        };
-        console.log(`Projectile spawn event triggered with ${JSON.stringify(targetDetails)}`);
+
+        // const targetDetails = {
+        //     target: JSON.stringify(uiVectors.target),
+        //     shooter: JSON.stringify(uiVectors.shooter),
+        //     projectile: JSON.stringify(uiVectors.projectile),
+        //     indexToMinimize: getProjectileSetting(ProjectileSetting.IndexToMinimize),
+        //     fallbackIntersectionTime: getProjectileSetting(ProjectileSetting.FallbackIntersectionTime),
+        //     targetObject: target ? {
+        //         scaledTargetDerivatives: JSON.stringify(target.getScaledPositionDerivatives()),
+        //         position: JSON.stringify(target.position),
+        //         lifetime: target.lifeTime
+        //     } : null,
+        // };
+        // console.log(`Projectile spawn event triggered with ${JSON.stringify(targetDetails)}`);
     });
 }
 // Handle vector type selection change
