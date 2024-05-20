@@ -30,7 +30,6 @@ export class UIVectorControlRenderer {
 
     private renderProjectileSpecificControls(): void {
         const settingsContainer = document.createElement('div');
-        settingsContainer.id = 'projectile-parameters-container';
 
         // Create and append the 'Index to Minimize' setting
         const indexInput = createSettingInput('Index to Minimize:',
